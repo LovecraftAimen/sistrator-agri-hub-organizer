@@ -9,7 +9,7 @@ import {
   Calendar, 
   Tractor,
   Wheat,
-  Tool,
+  Settings,
   AlertCircle,
   CheckCircle2,
   Timer
@@ -218,7 +218,7 @@ export function ServiceDetails({ service }: ServiceDetailsProps) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Tool className="w-5 h-5" />
+              <Settings className="w-5 h-5" />
               Detalhes Técnicos
             </CardTitle>
           </CardHeader>
