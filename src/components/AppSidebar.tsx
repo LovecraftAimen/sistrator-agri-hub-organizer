@@ -9,6 +9,7 @@ import {
   Calendar,
   FileText
 } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 import {
   Sidebar,
   SidebarContent,
@@ -69,6 +70,8 @@ const adminItems = [
 ];
 
 export function AppSidebar() {
+  const location = useLocation();
+
   return (
     <Sidebar className="border-r border-border/40">
       <SidebarHeader className="p-6">
@@ -94,12 +97,13 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
                     asChild 
+                    isActive={location.pathname === item.url}
                     className="hover:bg-accent hover:text-accent-foreground transition-colors"
                   >
-                    <a href={item.url} className="flex items-center gap-3 px-3 py-2">
+                    <Link to={item.url} className="flex items-center gap-3 px-3 py-2">
                       <item.icon className="w-5 h-5" />
                       <span className="font-medium">{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -117,12 +121,13 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
                     asChild 
+                    isActive={location.pathname === item.url}
                     className="hover:bg-accent hover:text-accent-foreground transition-colors"
                   >
-                    <a href={item.url} className="flex items-center gap-3 px-3 py-2">
+                    <Link to={item.url} className="flex items-center gap-3 px-3 py-2">
                       <item.icon className="w-5 h-5" />
                       <span className="font-medium">{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
