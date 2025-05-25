@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
@@ -10,12 +9,22 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Users, Phone, MapPin } from "lucide-react";
+import { Plus, Search, Users, Phone, MapPin, Download, Filter } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { AdvancedFilters } from "@/components/AdvancedFilters";
+import { StatsCard } from "@/components/StatsCard";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { useDataExport } from "@/hooks/useDataExport";
 
 const Beneficiarios = () => {
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<Record<string, any>>({});
+  const { exportData, isExporting } = useDataExport();
   
   // Mock data for beneficiários
   const beneficiarios = [
@@ -28,7 +37,9 @@ const Beneficiarios = () => {
       propriedade: "Sítio São João - Rod. SP-123, Km 45",
       tamanho: "15 hectares",
       culturas: "Milho, Soja",
-      status: "Ativo"
+      status: "Ativo",
+      municipio: "São Paulo",
+      dataCadastro: "2024-01-15"
     },
     {
       id: 2,
@@ -39,20 +50,61 @@ const Beneficiarios = () => {
       propriedade: "Chácara Bela Vista - Estrada Rural, Km 12",
       tamanho: "8 hectares",
       culturas: "Feijão, Mandioca",
-      status: "Ativo"
+      status: "Ativo",
+      municipio: "Campinas",
+      dataCadastro: "2024-02-10"
     }
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const filterOptions = [
+    { key: "nome", label: "Nome", type: "text" as const },
+    { key: "municipio", label: "Município", type: "select" as const, options: [
+      { value: "São Paulo", label: "São Paulo" },
+      { value: "Campinas", label: "Campinas" },
+    ]},
+    { key: "status", label: "Status", type: "select" as const, options: [
+      { value: "Ativo", label: "Ativo" },
+      { value: "Inativo", label: "Inativo" },
+    ]},
+    { key: "dataCadastro", label: "Data de Cadastro", type: "date" as const },
+  ];
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+    
+    // Simula envio
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
     toast.success("Beneficiário cadastrado com sucesso!");
     setShowForm(false);
+    setIsLoading(false);
   };
 
-  const filteredBeneficiarios = beneficiarios.filter(b => 
-    b.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    b.apelido.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleExport = async (format: 'csv' | 'excel' | 'pdf') => {
+    try {
+      await exportData(filteredBeneficiarios, {
+        filename: 'beneficiarios',
+        format
+      });
+      toast.success(`Dados exportados em ${format.toUpperCase()} com sucesso!`);
+    } catch (error) {
+      toast.error("Erro ao exportar dados");
+    }
+  };
+
+  const filteredBeneficiarios = beneficiarios.filter(b => {
+    const matchesSearch = b.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         b.apelido.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesFilters = Object.entries(activeFilters).every(([key, value]) => {
+      if (!value) return true;
+      const fieldValue = b[key as keyof typeof b];
+      return fieldValue?.toString().toLowerCase().includes(value.toLowerCase());
+    });
+
+    return matchesSearch && matchesFilters;
+  });
 
   return (
     <SidebarProvider>
@@ -71,16 +123,24 @@ const Beneficiarios = () => {
                   Cadastro e gerenciamento de beneficiários do programa
                 </p>
               </div>
-              <Button onClick={() => setShowForm(true)} className="gap-2">
-                <Plus className="w-4 h-4" />
-                Novo Beneficiário
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => handleExport('csv')} disabled={isExporting}>
+                  <Download className="w-4 h-4 mr-2" />
+                  {isExporting ? "Exportando..." : "Exportar"}
+                </Button>
+                <Button onClick={() => setShowForm(true)} className="gap-2">
+                  <Plus className="w-4 h-4" />
+                  Novo Beneficiário
+                </Button>
+              </div>
             </div>
           </div>
 
           {/* Content */}
           <div className="flex-1 overflow-auto p-6">
             <div className="space-y-6">
+              <Breadcrumbs />
+              
               {showForm ? (
                 <Card>
                   <CardHeader>
@@ -146,7 +206,9 @@ const Beneficiarios = () => {
                       </div>
 
                       <div className="flex gap-2">
-                        <Button type="submit">Cadastrar</Button>
+                        <Button type="submit" disabled={isLoading}>
+                          {isLoading ? <LoadingSpinner size="sm" text="Salvando..." /> : "Cadastrar"}
+                        </Button>
                         <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
                           Cancelar
                         </Button>
@@ -156,27 +218,54 @@ const Beneficiarios = () => {
                 </Card>
               ) : (
                 <>
-                  {/* Search and Stats */}
-                  <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-                    <div className="relative flex-1 max-w-sm">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                      <Input
-                        placeholder="Buscar beneficiário..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
-                    <div className="flex gap-4">
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-green-600">{beneficiarios.length}</div>
-                        <div className="text-sm text-muted-foreground">Total</div>
+                  {/* Stats Cards */}
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <StatsCard
+                      title="Total de Beneficiários"
+                      value={beneficiarios.length}
+                      description="Cadastrados no sistema"
+                      trend={{ value: 12, type: "increase", period: "este mês" }}
+                      icon={<Users className="w-4 h-4" />}
+                    />
+                    <StatsCard
+                      title="Beneficiários Ativos"
+                      value={beneficiarios.filter(b => b.status === 'Ativo').length}
+                      description="Em atividade"
+                      badge={{ text: "Ativo", variant: "default" }}
+                    />
+                    <StatsCard
+                      title="Área Total"
+                      value="23 ha"
+                      description="Propriedades cadastradas"
+                      trend={{ value: 8, type: "increase" }}
+                    />
+                    <StatsCard
+                      title="Novos este Mês"
+                      value="3"
+                      description="Cadastros recentes"
+                      trend={{ value: 15, type: "increase" }}
+                    />
+                  </div>
+
+                  {/* Search and Filters */}
+                  <div className="space-y-4">
+                    <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+                      <div className="relative flex-1 max-w-sm">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                        <Input
+                          placeholder="Buscar beneficiário..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className="pl-10"
+                        />
                       </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-blue-600">{beneficiarios.filter(b => b.status === 'Ativo').length}</div>
-                        <div className="text-sm text-muted-foreground">Ativos</div>
-                      </div>
                     </div>
+
+                    <AdvancedFilters
+                      filters={filterOptions}
+                      activeFilters={activeFilters}
+                      onFiltersChange={setActiveFilters}
+                    />
                   </div>
 
                   {/* Beneficiários Table */}
@@ -184,7 +273,7 @@ const Beneficiarios = () => {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Users className="w-5 h-5" />
-                        Lista de Beneficiários
+                        Lista de Beneficiários ({filteredBeneficiarios.length})
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -238,6 +327,19 @@ const Beneficiarios = () => {
             </div>
           </div>
         </main>
+
+        <ConfirmDialog
+          open={showDeleteConfirm}
+          onOpenChange={setShowDeleteConfirm}
+          title="Confirmar Exclusão"
+          description="Tem certeza de que deseja excluir este beneficiário? Esta ação não pode ser desfeita."
+          confirmText="Excluir"
+          variant="destructive"
+          onConfirm={() => {
+            setShowDeleteConfirm(false);
+            toast.success("Beneficiário excluído com sucesso!");
+          }}
+        />
       </div>
     </SidebarProvider>
   );
