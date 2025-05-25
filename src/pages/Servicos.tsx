@@ -9,15 +9,13 @@ import { ServicesTable, type Service } from "@/components/ServicesTable";
 import { ServiceDetails } from "@/components/ServiceDetails";
 import { ServiceForm } from "@/components/ServiceForm";
 import { AdvancedFilters } from "@/components/AdvancedFilters";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { Plus, Calendar, Activity, Download } from "lucide-react";
+import { PDFExportButton } from "@/components/PDFExportButton";
+import { Plus, Calendar, Activity } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { usePDFExport } from "@/hooks/usePDFExport";
 
 const Servicos = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { exportToPDF, isExporting } = usePDFExport();
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [showNewServiceForm, setShowNewServiceForm] = useState(false);
@@ -130,80 +128,93 @@ const Servicos = () => {
   const handleGoToAgenda = () => {
     navigate('/agendamentos');
     toast({
-      title: "Redirecionando",
-      description: "Abrindo página de agendamentos...",
+      title: "Navegando para Agendamentos",
+      description: "Redirecionando para a página de agendamentos...",
     });
   };
 
   const handleGoToRelatorios = () => {
     navigate('/relatorios');
     toast({
-      title: "Redirecionando",
-      description: "Abrindo página de relatórios...",
+      title: "Navegando para Relatórios",
+      description: "Redirecionando para a página de relatórios...",
     });
   };
 
-  const handleExportPDF = async () => {
-    try {
-      // Mock data - em produção seria obtido da API com os filtros aplicados
-      const mockServices: Service[] = [
-        {
-          id: "001",
-          beneficiario: "João Silva Santos",
-          tratorista: "Carlos Alberto Santos",
-          tipo: "Aração",
-          area: "2.5 ha",
-          status: "Em execução",
-          inicioEstimado: "14:30",
-          inicioReal: "14:45",
-          endereco: "Sítio Boa Vista, Zona Rural",
-          prioridade: "Alta",
-          dataAgendamento: "2024-01-15",
-          culturasPrevistas: ["Milho", "Feijão"],
-          equipamentos: ["Arado de Disco", "Trator Massey Ferguson"],
-          horasEstimadas: 3,
-          horasReais: 2.5,
-          regiao: "Norte",
-          vereador: "Maria José",
-          observacoes: "Solo úmido, condições favoráveis"
-        },
-        // ... outros serviços
-      ];
-
-      const sections = [
-        {
-          title: "Serviços Ativos",
-          data: mockServices,
-          columns: ["id", "beneficiario", "tratorista", "tipo", "area", "status", "prioridade", "regiao"],
-          headers: ["ID", "Beneficiário", "Tratorista", "Tipo", "Área", "Status", "Prioridade", "Região"]
-        },
-        {
-          title: "Resumo por Status",
-          data: [
-            { status: "Em execução", quantidade: 1 },
-            { status: "Agendado", quantidade: 1 },
-            { status: "Concluído", quantidade: 1 },
-            { status: "Pausado", quantidade: 1 }
-          ],
-          columns: ["status", "quantidade"],
-          headers: ["Status", "Quantidade"]
-        }
-      ];
-
-      await exportToPDF("Relatório de Serviços Ativos", sections, "servicos-ativos");
-      
-      toast({
-        title: "PDF exportado",
-        description: "O relatório foi baixado com sucesso.",
-      });
-    } catch (error) {
-      toast({
-        title: "Erro na exportação",
-        description: "Não foi possível gerar o PDF. Tente novamente.",
-        variant: "destructive",
-      });
+  // Mock data para PDF
+  const mockServices: Service[] = [
+    {
+      id: "001",
+      beneficiario: "João Silva Santos",
+      tratorista: "Carlos Alberto Santos",
+      tipo: "Aração",
+      area: "2.5 ha",
+      status: "Em execução",
+      inicioEstimado: "14:30",
+      inicioReal: "14:45",
+      endereco: "Sítio Boa Vista, Zona Rural",
+      prioridade: "Alta",
+      dataAgendamento: "2024-01-15",
+      culturasPrevistas: ["Milho", "Feijão"],
+      equipamentos: ["Arado de Disco", "Trator Massey Ferguson"],
+      horasEstimadas: 3,
+      horasReais: 2.5,
+      regiao: "Norte",
+      vereador: "Maria José",
+      observacoes: "Solo úmido, condições favoráveis"
+    },
+    {
+      id: "002",
+      beneficiario: "Maria Santos Oliveira",
+      tratorista: "José Carlos Silva",
+      tipo: "Gradagem",
+      area: "1.8 ha",
+      status: "Agendado",
+      inicioEstimado: "08:00",
+      inicioReal: null,
+      endereco: "Fazenda Santa Clara",
+      prioridade: "Média",
+      dataAgendamento: "2024-01-16",
+      culturasPrevistas: ["Soja"],
+      equipamentos: ["Grade Aradora", "Trator John Deere"],
+      horasEstimadas: 2,
+      horasReais: null,
+      regiao: "Sul",
+      vereador: "João Pedro",
+      observacoes: "Verificar umidade do solo"
     }
-  };
+  ];
+
+  const pdfSections = [
+    {
+      title: "Serviços Ativos",
+      data: mockServices,
+      columns: ["id", "beneficiario", "tratorista", "tipo", "area", "status", "prioridade", "regiao"],
+      headers: ["ID", "Beneficiário", "Tratorista", "Tipo", "Área", "Status", "Prioridade", "Região"]
+    },
+    {
+      title: "Resumo por Status",
+      data: [
+        { status: "Em execução", quantidade: 1 },
+        { status: "Agendado", quantidade: 1 },
+        { status: "Concluído", quantidade: 0 },
+        { status: "Pausado", quantidade: 0 }
+      ],
+      columns: ["status", "quantidade"],
+      headers: ["Status", "Quantidade"]
+    },
+    {
+      title: "Resumo por Região",
+      data: [
+        { regiao: "Norte", servicos: 1 },
+        { regiao: "Sul", servicos: 1 },
+        { regiao: "Leste", servicos: 0 },
+        { regiao: "Oeste", servicos: 0 }
+      ],
+      columns: ["regiao", "servicos"],
+      headers: ["Região", "Número de Serviços"]
+    }
+  ];
 
   return (
     <SidebarProvider>
@@ -230,19 +241,13 @@ const Servicos = () => {
                   <Activity className="w-4 h-4 mr-2" />
                   Relatórios
                 </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={handleExportPDF}
-                  disabled={isExporting}
-                >
-                  {isExporting ? (
-                    <LoadingSpinner size="sm" className="mr-2" text="" />
-                  ) : (
-                    <Download className="w-4 h-4 mr-2" />
-                  )}
-                  Exportar PDF
-                </Button>
+                <PDFExportButton
+                  title="Relatório de Serviços Ativos"
+                  sections={pdfSections}
+                  filename="servicos-ativos"
+                  variant="outline"
+                  size="sm"
+                />
                 <Button onClick={handleNewService} size="sm">
                   <Plus className="w-4 h-4 mr-2" />
                   Novo Serviço

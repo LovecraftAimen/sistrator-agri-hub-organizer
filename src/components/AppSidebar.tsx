@@ -7,9 +7,13 @@ import {
   Settings,
   Home,
   Calendar,
-  FileText
+  FileText,
+  LogOut
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import {
   Sidebar,
   SidebarContent,
@@ -71,6 +75,16 @@ const adminItems = [
 
 export function AppSidebar() {
   const location = useLocation();
+  const { user, logout } = useAuth();
+  const { toast } = useToast();
+
+  const handleLogout = () => {
+    logout();
+    toast({
+      title: "Logout realizado",
+      description: "Você foi desconectado com sucesso.",
+    });
+  };
 
   return (
     <Sidebar className="border-r border-border/40">
@@ -136,18 +150,30 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-4">
+      <SidebarFooter className="p-4 space-y-2">
         <div className="flex items-center gap-3 p-3 rounded-lg bg-accent">
           <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-            <span className="text-xs font-semibold text-primary-foreground">SA</span>
+            <span className="text-xs font-semibold text-primary-foreground">
+              {user?.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+            </span>
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-accent-foreground truncate">
-              Secretário de Agricultura
+              {user?.name}
             </p>
             <p className="text-xs text-muted-foreground">Acesso total</p>
           </div>
         </div>
+        
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={handleLogout}
+          className="w-full justify-start"
+        >
+          <LogOut className="w-4 h-4 mr-2" />
+          Sair
+        </Button>
       </SidebarFooter>
     </Sidebar>
   );

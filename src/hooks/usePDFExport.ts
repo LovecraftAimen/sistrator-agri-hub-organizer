@@ -6,6 +6,7 @@ import 'jspdf-autotable';
 declare module 'jspdf' {
   interface jsPDF {
     autoTable: (options: any) => jsPDF;
+    lastAutoTable: any;
   }
 }
 
@@ -100,14 +101,10 @@ export const usePDFExport = () => {
           },
           margin: { left: 20, right: 20 },
           didDrawPage: (data: any) => {
-            // Rodapé
-            const pageNumber = doc.internal.getCurrentPageInfo().pageNumber;
+            // Rodapé com número da página
+            const str = `Página ${doc.internal.pages.length - 1}`;
             doc.setFontSize(8);
-            doc.text(
-              `Página ${pageNumber}`,
-              pageWidth - 30,
-              pageHeight - 10
-            );
+            doc.text(str, pageWidth - 30, pageHeight - 10);
           },
         });
 
