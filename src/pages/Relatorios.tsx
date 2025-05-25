@@ -1,4 +1,3 @@
-
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,8 +7,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { Download, BarChart3, Users, Clock, MapPin, Tractor } from "lucide-react";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { useToast } from "@/hooks/use-toast";
+import { usePDFExport } from "@/hooks/usePDFExport";
 
 const Relatorios = () => {
+  const { toast } = useToast();
+  const { exportToPDF, isExporting } = usePDFExport();
+
   // Mock data para relatórios
   const servicosPorTipo = [
     { tipo: "Aração", quantidade: 145, horas: 289 },
@@ -37,6 +42,61 @@ const Relatorios = () => {
   ];
 
   const COLORS = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444'];
+
+  const handleExportPDF = async () => {
+    try {
+      const sections = [
+        {
+          title: "Resumo Geral",
+          data: [
+            { metrica: "Total de Beneficiários", valor: "248", observacao: "+12% em relação ao mês anterior" },
+            { metrica: "Serviços Realizados", valor: "277", observacao: "145 arações + 132 gradagens" },
+            { metrica: "Total de Horas", valor: "487h", observacao: "Tempo total trabalhado" },
+            { metrica: "Eficiência Média", valor: "91%", observacao: "Meta: 85%" }
+          ],
+          columns: ["metrica", "valor", "observacao"],
+          headers: ["Métrica", "Valor", "Observação"]
+        },
+        {
+          title: "Serviços por Tipo",
+          data: servicosPorTipo,
+          columns: ["tipo", "quantidade", "horas"],
+          headers: ["Tipo", "Quantidade", "Horas"]
+        },
+        {
+          title: "Desempenho por Tratorista",
+          data: tratoristas,
+          columns: ["nome", "servicos", "horas", "eficiencia"],
+          headers: ["Tratorista", "Serviços", "Horas", "Eficiência"]
+        },
+        {
+          title: "Progresso por Região",
+          data: servicosPorRegiao,
+          columns: ["regiao", "concluidos", "pendentes", "prioridade"],
+          headers: ["Região", "Concluídos", "Pendentes", "Prioridade"]
+        },
+        {
+          title: "Horas por Propriedade",
+          data: horasPorPropriedade,
+          columns: ["propriedade", "beneficiario", "horasAracao", "horasGradagem", "total"],
+          headers: ["Propriedade", "Beneficiário", "Horas Aração", "Horas Gradagem", "Total"]
+        }
+      ];
+
+      await exportToPDF("Relatório Completo de Mecanização Agrícola", sections, "relatorio-completo");
+      
+      toast({
+        title: "PDF exportado",
+        description: "O relatório completo foi baixado com sucesso.",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro na exportação",
+        description: "Não foi possível gerar o PDF. Tente novamente.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <SidebarProvider>
@@ -67,8 +127,17 @@ const Relatorios = () => {
                     <SelectItem value="ano">Último ano</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button variant="outline" className="gap-2">
-                  <Download className="w-4 h-4" />
+                <Button 
+                  variant="outline" 
+                  className="gap-2"
+                  onClick={handleExportPDF}
+                  disabled={isExporting}
+                >
+                  {isExporting ? (
+                    <LoadingSpinner size="sm" text="" />
+                  ) : (
+                    <Download className="w-4 h-4" />
+                  )}
                   Exportar PDF
                 </Button>
               </div>

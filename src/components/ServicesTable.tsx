@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -140,9 +139,10 @@ const mockServices: Service[] = [
 interface ServicesTableProps {
   onViewService: (service: Service) => void;
   onEditService: (service: Service) => void;
+  filters?: Record<string, any>;
 }
 
-export function ServicesTable({ onViewService, onEditService }: ServicesTableProps) {
+export function ServicesTable({ onViewService, onEditService, filters = {} }: ServicesTableProps) {
   const [services] = useState<Service[]>(mockServices);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -177,17 +177,42 @@ export function ServicesTable({ onViewService, onEditService }: ServicesTablePro
     }
   };
 
-  const filteredServices = services.filter((service) => {
-    const matchesSearch = 
-      service.beneficiario.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      service.tratorista.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      service.tipo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      service.endereco.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = statusFilter === "all" || service.status === statusFilter;
-    
-    return matchesSearch && matchesStatus;
-  });
+  const filteredServices = useMemo(() => {
+    return services.filter((service) => {
+      const matchesSearch = 
+        service.beneficiario.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        service.tratorista.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        service.tipo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        service.endereco.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesStatus = statusFilter === "all" || service.status === statusFilter;
+      
+      const matchesAdvancedFilters = Object.entries(filters).every(([key, value]) => {
+        if (!value) return true;
+        
+        switch (key) {
+          case "beneficiario":
+            return service.beneficiario.toLowerCase().includes(value.toLowerCase());
+          case "tratorista":
+            return service.tratorista.toLowerCase().includes(value.toLowerCase());
+          case "status":
+            return service.status === value;
+          case "tipo":
+            return service.tipo === value;
+          case "prioridade":
+            return service.prioridade === value;
+          case "regiao":
+            return service.regiao === value;
+          case "dataAgendamento":
+            return service.dataAgendamento === value;
+          default:
+            return true;
+        }
+      });
+      
+      return matchesSearch && matchesStatus && matchesAdvancedFilters;
+    });
+  }, [services, searchTerm, statusFilter, filters]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('pt-BR');
