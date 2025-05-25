@@ -9,13 +9,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Users, Phone, MapPin, Download, Filter } from "lucide-react";
+import { Plus, Search, Users, Phone, MapPin, Download, Settings, Trash2, UserCheck } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { AdvancedFilters } from "@/components/AdvancedFilters";
 import { StatsCard } from "@/components/StatsCard";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { StatusDialog } from "@/components/StatusDialog";
+import { DeleteBeneficiarioDialog } from "@/components/DeleteBeneficiarioDialog";
 import { useDataExport } from "@/hooks/useDataExport";
 
 const Beneficiarios = () => {
@@ -23,15 +25,19 @@ const Beneficiarios = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showStatusDialog, setShowStatusDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [selectedBeneficiario, setSelectedBeneficiario] = useState<any>(null);
   const [activeFilters, setActiveFilters] = useState<Record<string, any>>({});
   const { exportData, isExporting } = useDataExport();
   
-  // Mock data for beneficiários
-  const beneficiarios = [
+  // Mock data para beneficiários com CPF e status expandidos
+  const [beneficiarios, setBeneficiarios] = useState([
     {
       id: 1,
       nome: "João Silva Santos",
       apelido: "João do Sítio",
+      cpf: "123.456.789-01",
       telefone: "(11) 99999-1234",
       endereco: "Rua das Flores, 123",
       propriedade: "Sítio São João - Rod. SP-123, Km 45",
@@ -45,26 +51,43 @@ const Beneficiarios = () => {
       id: 2,
       nome: "Maria Oliveira Costa",
       apelido: "Maria da Roça",
+      cpf: "987.654.321-09",
       telefone: "(11) 98888-5678",
       endereco: "Av. Principal, 456",
       propriedade: "Chácara Bela Vista - Estrada Rural, Km 12",
       tamanho: "8 hectares",
       culturas: "Feijão, Mandioca",
-      status: "Ativo",
+      status: "Pendente",
       municipio: "Campinas",
       dataCadastro: "2024-02-10"
+    },
+    {
+      id: 3,
+      nome: "Carlos Ferreira Lima",
+      apelido: "Carlinhos",
+      cpf: "456.789.123-45",
+      telefone: "(11) 97777-9999",
+      endereco: "Rua do Campo, 789",
+      propriedade: "Fazenda Santa Clara - Estrada Velha, Km 8",
+      tamanho: "25 hectares",
+      culturas: "Café, Milho",
+      status: "Inativo",
+      municipio: "Sorocaba",
+      dataCadastro: "2024-01-20"
     }
-  ];
+  ]);
 
   const filterOptions = [
     { key: "nome", label: "Nome", type: "text" as const },
     { key: "municipio", label: "Município", type: "select" as const, options: [
       { value: "São Paulo", label: "São Paulo" },
       { value: "Campinas", label: "Campinas" },
+      { value: "Sorocaba", label: "Sorocaba" },
     ]},
     { key: "status", label: "Status", type: "select" as const, options: [
       { value: "Ativo", label: "Ativo" },
       { value: "Inativo", label: "Inativo" },
+      { value: "Pendente", label: "Pendente" },
     ]},
     { key: "dataCadastro", label: "Data de Cadastro", type: "date" as const },
   ];
@@ -93,6 +116,30 @@ const Beneficiarios = () => {
     }
   };
 
+  const handleStatusChange = (id: number, newStatus: string) => {
+    setBeneficiarios(prev => 
+      prev.map(b => 
+        b.id === id ? { ...b, status: newStatus } : b
+      )
+    );
+    toast.success(`Status alterado para "${newStatus}" com sucesso!`);
+  };
+
+  const handleDeleteBeneficiario = (id: number) => {
+    setBeneficiarios(prev => prev.filter(b => b.id !== id));
+    toast.success("Beneficiário excluído com sucesso!");
+  };
+
+  const openStatusDialog = (beneficiario: any) => {
+    setSelectedBeneficiario(beneficiario);
+    setShowStatusDialog(true);
+  };
+
+  const openDeleteDialog = (beneficiario: any) => {
+    setSelectedBeneficiario(beneficiario);
+    setShowDeleteDialog(true);
+  };
+
   const filteredBeneficiarios = beneficiarios.filter(b => {
     const matchesSearch = b.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          b.apelido.toLowerCase().includes(searchTerm.toLowerCase());
@@ -105,6 +152,22 @@ const Beneficiarios = () => {
 
     return matchesSearch && matchesFilters;
   });
+
+  const getStatusBadgeVariant = (status: string) => {
+    switch (status) {
+      case 'Ativo': return 'default';
+      case 'Inativo': return 'destructive';
+      case 'Pendente': return 'secondary';
+      default: return 'secondary';
+    }
+  };
+
+  const statsData = {
+    total: beneficiarios.length,
+    ativos: beneficiarios.filter(b => b.status === 'Ativo').length,
+    inativos: beneficiarios.filter(b => b.status === 'Inativo').length,
+    pendentes: beneficiarios.filter(b => b.status === 'Pendente').length,
+  };
 
   return (
     <SidebarProvider>
@@ -222,28 +285,28 @@ const Beneficiarios = () => {
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <StatsCard
                       title="Total de Beneficiários"
-                      value={beneficiarios.length}
+                      value={statsData.total}
                       description="Cadastrados no sistema"
                       trend={{ value: 12, type: "increase", period: "este mês" }}
                       icon={<Users className="w-4 h-4" />}
                     />
                     <StatsCard
                       title="Beneficiários Ativos"
-                      value={beneficiarios.filter(b => b.status === 'Ativo').length}
+                      value={statsData.ativos}
                       description="Em atividade"
                       badge={{ text: "Ativo", variant: "default" }}
                     />
                     <StatsCard
-                      title="Área Total"
-                      value="23 ha"
-                      description="Propriedades cadastradas"
-                      trend={{ value: 8, type: "increase" }}
+                      title="Beneficiários Pendentes"
+                      value={statsData.pendentes}
+                      description="Aguardando aprovação"
+                      badge={{ text: "Pendente", variant: "secondary" }}
                     />
                     <StatsCard
-                      title="Novos este Mês"
-                      value="3"
-                      description="Cadastros recentes"
-                      trend={{ value: 15, type: "increase" }}
+                      title="Beneficiários Inativos"
+                      value={statsData.inativos}
+                      description="Desativados"
+                      badge={{ text: "Inativo", variant: "destructive" }}
                     />
                   </div>
 
@@ -281,11 +344,12 @@ const Beneficiarios = () => {
                         <TableHeader>
                           <TableRow>
                             <TableHead>Nome / Apelido</TableHead>
+                            <TableHead>CPF</TableHead>
                             <TableHead>Contato</TableHead>
                             <TableHead>Propriedade</TableHead>
                             <TableHead>Tamanho</TableHead>
-                            <TableHead>Culturas</TableHead>
                             <TableHead>Status</TableHead>
+                            <TableHead className="text-center">Ações</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -296,6 +360,9 @@ const Beneficiarios = () => {
                                   <div className="font-medium">{beneficiario.nome}</div>
                                   <div className="text-sm text-muted-foreground">"{beneficiario.apelido}"</div>
                                 </div>
+                              </TableCell>
+                              <TableCell>
+                                <span className="font-mono text-sm">{beneficiario.cpf}</span>
                               </TableCell>
                               <TableCell>
                                 <div className="flex items-center gap-2">
@@ -310,11 +377,30 @@ const Beneficiarios = () => {
                                 </div>
                               </TableCell>
                               <TableCell>{beneficiario.tamanho}</TableCell>
-                              <TableCell>{beneficiario.culturas}</TableCell>
                               <TableCell>
-                                <Badge variant={beneficiario.status === 'Ativo' ? 'default' : 'secondary'}>
+                                <Badge variant={getStatusBadgeVariant(beneficiario.status)}>
                                   {beneficiario.status}
                                 </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center justify-center gap-2">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => openStatusDialog(beneficiario)}
+                                    className="h-8"
+                                  >
+                                    <Settings className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => openDeleteDialog(beneficiario)}
+                                    className="h-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
                               </TableCell>
                             </TableRow>
                           ))}
@@ -328,6 +414,23 @@ const Beneficiarios = () => {
           </div>
         </main>
 
+        {/* Status Dialog */}
+        <StatusDialog
+          open={showStatusDialog}
+          onOpenChange={setShowStatusDialog}
+          beneficiario={selectedBeneficiario}
+          onStatusChange={handleStatusChange}
+        />
+
+        {/* Delete Dialog */}
+        <DeleteBeneficiarioDialog
+          open={showDeleteDialog}
+          onOpenChange={setShowDeleteDialog}
+          beneficiario={selectedBeneficiario}
+          onConfirmDelete={handleDeleteBeneficiario}
+        />
+
+        {/* Legacy Confirm Dialog */}
         <ConfirmDialog
           open={showDeleteConfirm}
           onOpenChange={setShowDeleteConfirm}
