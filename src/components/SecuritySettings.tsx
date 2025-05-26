@@ -7,13 +7,17 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { ChangePasswordDialog } from "@/components/ChangePasswordDialog";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Shield, 
   Key, 
   Lock, 
   AlertTriangle,
   Save,
-  History
+  History,
+  RefreshCw
 } from "lucide-react";
 
 export function SecuritySettings() {
@@ -27,6 +31,10 @@ export function SecuritySettings() {
     ipWhitelist: false,
     forceHttps: true
   });
+
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
+  const [confirmChangePasswordOpen, setConfirmChangePasswordOpen] = useState(false);
+  const { toast } = useToast();
 
   const [auditLogs] = useState([
     {
@@ -57,6 +65,49 @@ export function SecuritySettings() {
 
   const handleSave = () => {
     console.log("Salvando configurações de segurança:", securitySettings);
+    toast({
+      title: "Sucesso",
+      description: "Configurações de segurança salvas com sucesso"
+    });
+  };
+
+  const handleSettingChange = (setting: string, value: boolean | string) => {
+    setSecuritySettings(prev => ({
+      ...prev,
+      [setting]: value
+    }));
+    
+    // Toast informativo para mudanças importantes
+    if (setting === 'twoFactorAuth' && value) {
+      toast({
+        title: "Autenticação 2FA Ativada",
+        description: "Maior segurança habilitada para o sistema"
+      });
+    }
+    
+    if (setting === 'maintenanceMode' && value) {
+      toast({
+        title: "Modo de Manutenção",
+        description: "Sistema será bloqueado para novos acessos",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handlePasswordChange = () => {
+    setConfirmChangePasswordOpen(true);
+  };
+
+  const confirmPasswordChange = () => {
+    setConfirmChangePasswordOpen(false);
+    setChangePasswordOpen(true);
+  };
+
+  const clearAuditLogs = () => {
+    toast({
+      title: "Logs Limpos",
+      description: "Histórico de auditoria foi limpo com sucesso"
+    });
   };
 
   return (
@@ -81,7 +132,7 @@ export function SecuritySettings() {
               {securitySettings.twoFactorAuth && <Badge>Ativo</Badge>}
               <Switch
                 checked={securitySettings.twoFactorAuth}
-                onCheckedChange={(checked) => setSecuritySettings({...securitySettings, twoFactorAuth: checked})}
+                onCheckedChange={(checked) => handleSettingChange('twoFactorAuth', checked)}
               />
             </div>
           </div>
@@ -97,7 +148,7 @@ export function SecuritySettings() {
             </div>
             <Switch
               checked={securitySettings.passwordExpiration}
-              onCheckedChange={(checked) => setSecuritySettings({...securitySettings, passwordExpiration: checked})}
+              onCheckedChange={(checked) => handleSettingChange('passwordExpiration', checked)}
             />
           </div>
 
@@ -109,8 +160,10 @@ export function SecuritySettings() {
               <Input
                 id="passwordMinLength"
                 type="number"
+                min="6"
+                max="20"
                 value={securitySettings.passwordMinLength}
-                onChange={(e) => setSecuritySettings({...securitySettings, passwordMinLength: e.target.value})}
+                onChange={(e) => handleSettingChange('passwordMinLength', e.target.value)}
               />
             </div>
             <div className="space-y-2">
@@ -118,10 +171,27 @@ export function SecuritySettings() {
               <Input
                 id="maxLoginAttempts"
                 type="number"
+                min="1"
+                max="10"
                 value={securitySettings.maxLoginAttempts}
-                onChange={(e) => setSecuritySettings({...securitySettings, maxLoginAttempts: e.target.value})}
+                onChange={(e) => handleSettingChange('maxLoginAttempts', e.target.value)}
               />
             </div>
+          </div>
+
+          <Separator />
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label>Alterar Senha</Label>
+              <p className="text-sm text-muted-foreground">
+                Alterar a senha de acesso ao sistema
+              </p>
+            </div>
+            <Button onClick={handlePasswordChange} variant="outline">
+              <Lock className="w-4 h-4 mr-2" />
+              Alterar Senha
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -144,7 +214,7 @@ export function SecuritySettings() {
             </div>
             <Switch
               checked={securitySettings.auditLog}
-              onCheckedChange={(checked) => setSecuritySettings({...securitySettings, auditLog: checked})}
+              onCheckedChange={(checked) => handleSettingChange('auditLog', checked)}
             />
           </div>
 
@@ -159,7 +229,7 @@ export function SecuritySettings() {
             </div>
             <Switch
               checked={securitySettings.ipWhitelist}
-              onCheckedChange={(checked) => setSecuritySettings({...securitySettings, ipWhitelist: checked})}
+              onCheckedChange={(checked) => handleSettingChange('ipWhitelist', checked)}
             />
           </div>
 
@@ -176,7 +246,7 @@ export function SecuritySettings() {
               <Badge variant="default">Recomendado</Badge>
               <Switch
                 checked={securitySettings.forceHttps}
-                onCheckedChange={(checked) => setSecuritySettings({...securitySettings, forceHttps: checked})}
+                onCheckedChange={(checked) => handleSettingChange('forceHttps', checked)}
               />
             </div>
           </div>
@@ -188,8 +258,10 @@ export function SecuritySettings() {
             <Input
               id="sessionTimeout"
               type="number"
+              min="5"
+              max="480"
               value={securitySettings.sessionTimeout}
-              onChange={(e) => setSecuritySettings({...securitySettings, sessionTimeout: e.target.value})}
+              onChange={(e) => handleSettingChange('sessionTimeout', e.target.value)}
             />
           </div>
         </CardContent>
@@ -198,10 +270,16 @@ export function SecuritySettings() {
       {/* Log de Auditoria */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <History className="w-4 h-4" />
-            Log de Auditoria Recente
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <History className="w-4 h-4" />
+              Log de Auditoria Recente
+            </CardTitle>
+            <Button variant="outline" size="sm" onClick={clearAuditLogs}>
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Limpar Logs
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -239,6 +317,21 @@ export function SecuritySettings() {
           Salvar Configurações de Segurança
         </Button>
       </div>
+
+      {/* Diálogos */}
+      <ConfirmDialog
+        open={confirmChangePasswordOpen}
+        onOpenChange={setConfirmChangePasswordOpen}
+        title="Confirmar Alteração de Senha"
+        description="Tem certeza que deseja alterar sua senha? Você precisará usar a nova senha para futuros acessos."
+        confirmText="Sim, Alterar Senha"
+        onConfirm={confirmPasswordChange}
+      />
+
+      <ChangePasswordDialog
+        open={changePasswordOpen}
+        onOpenChange={setChangePasswordOpen}
+      />
     </div>
   );
 }

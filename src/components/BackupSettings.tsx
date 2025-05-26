@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Database, 
   Download, 
@@ -15,7 +17,8 @@ import {
   Clock,
   HardDrive,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Save
 } from "lucide-react";
 
 export function BackupSettings() {
@@ -28,7 +31,7 @@ export function BackupSettings() {
     compression: true
   });
 
-  const [backupHistory] = useState([
+  const [backupHistory, setBackupHistory] = useState([
     {
       id: "1",
       date: "2024-01-15",
@@ -63,16 +66,104 @@ export function BackupSettings() {
     }
   ]);
 
-  const handleManualBackup = () => {
-    console.log("Iniciando backup manual...");
+  const [isBackingUp, setIsBackingUp] = useState(false);
+  const [backupProgress, setBackupProgress] = useState(0);
+  const [confirmRestoreOpen, setConfirmRestoreOpen] = useState(false);
+  const [selectedBackupId, setSelectedBackupId] = useState<string>("");
+  const { toast } = useToast();
+
+  const handleManualBackup = async () => {
+    setIsBackingUp(true);
+    setBackupProgress(0);
+    
+    toast({
+      title: "Backup Iniciado",
+      description: "Realizando backup do sistema..."
+    });
+
+    // Simular progresso do backup
+    for (let i = 0; i <= 100; i += 10) {
+      await new Promise(resolve => setTimeout(resolve, 200));
+      setBackupProgress(i);
+    }
+
+    // Adicionar novo backup ao histórico
+    const newBackup = {
+      id: String(Date.now()),
+      date: new Date().toISOString().split('T')[0],
+      time: new Date().toLocaleTimeString('pt-BR'),
+      size: "2.4 GB",
+      status: "success",
+      type: "manual"
+    };
+
+    setBackupHistory(prev => [newBackup, ...prev]);
+    setIsBackingUp(false);
+    setBackupProgress(0);
+
+    toast({
+      title: "Backup Concluído",
+      description: "Backup realizado com sucesso!"
+    });
   };
 
-  const handleRestore = () => {
-    console.log("Iniciando restauração...");
+  const handleRestore = (backupId?: string) => {
+    if (backupId) {
+      setSelectedBackupId(backupId);
+    }
+    setConfirmRestoreOpen(true);
+  };
+
+  const confirmRestore = async () => {
+    setConfirmRestoreOpen(false);
+    
+    toast({
+      title: "Restauração Iniciada",
+      description: "Restaurando sistema a partir do backup..."
+    });
+
+    // Simular restauração
+    await new Promise(resolve => setTimeout(resolve, 3000));
+
+    toast({
+      title: "Restauração Concluída",
+      description: "Sistema restaurado com sucesso!"
+    });
   };
 
   const handleSave = () => {
     console.log("Salvando configurações de backup:", backupSettings);
+    toast({
+      title: "Sucesso",
+      description: "Configurações de backup salvas com sucesso"
+    });
+  };
+
+  const handleSettingChange = (setting: string, value: string | boolean) => {
+    setBackupSettings(prev => ({
+      ...prev,
+      [setting]: value
+    }));
+
+    if (setting === 'autoBackup' && !value) {
+      toast({
+        title: "Backup Automático Desativado",
+        description: "Lembre-se de fazer backups manuais regularmente",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const downloadBackup = (backupId: string) => {
+    const backup = backupHistory.find(b => b.id === backupId);
+    if (backup) {
+      toast({
+        title: "Download Iniciado",
+        description: `Baixando backup de ${backup.date} - ${backup.size}`
+      });
+      // Simular download
+      console.log("Baixando backup:", backup);
+    }
   };
 
   return (
@@ -107,7 +198,9 @@ export function BackupSettings() {
               <Clock className="w-4 h-4 text-purple-600" />
               <div>
                 <p className="text-sm text-muted-foreground">Próximo Backup</p>
-                <p className="font-bold">16/01/2024 02:00</p>
+                <p className="font-bold">
+                  {backupSettings.autoBackup ? `16/01/2024 ${backupSettings.backupTime}` : "Desativado"}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -132,7 +225,7 @@ export function BackupSettings() {
             </div>
             <Switch
               checked={backupSettings.autoBackup}
-              onCheckedChange={(checked) => setBackupSettings({...backupSettings, autoBackup: checked})}
+              onCheckedChange={(checked) => handleSettingChange('autoBackup', checked)}
             />
           </div>
 
@@ -141,7 +234,7 @@ export function BackupSettings() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="frequency">Frequência</Label>
-                  <Select value={backupSettings.backupFrequency} onValueChange={(value) => setBackupSettings({...backupSettings, backupFrequency: value})}>
+                  <Select value={backupSettings.backupFrequency} onValueChange={(value) => handleSettingChange('backupFrequency', value)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -158,7 +251,7 @@ export function BackupSettings() {
                     id="backupTime"
                     type="time"
                     value={backupSettings.backupTime}
-                    onChange={(e) => setBackupSettings({...backupSettings, backupTime: e.target.value})}
+                    onChange={(e) => handleSettingChange('backupTime', e.target.value)}
                   />
                 </div>
               </div>
@@ -168,8 +261,10 @@ export function BackupSettings() {
                 <Input
                   id="retention"
                   type="number"
+                  min="1"
+                  max="365"
                   value={backupSettings.retentionDays}
-                  onChange={(e) => setBackupSettings({...backupSettings, retentionDays: e.target.value})}
+                  onChange={(e) => handleSettingChange('retentionDays', e.target.value)}
                 />
                 <p className="text-sm text-muted-foreground">
                   Backups mais antigos serão removidos automaticamente
@@ -187,7 +282,7 @@ export function BackupSettings() {
             </div>
             <Switch
               checked={backupSettings.includeFiles}
-              onCheckedChange={(checked) => setBackupSettings({...backupSettings, includeFiles: checked})}
+              onCheckedChange={(checked) => handleSettingChange('includeFiles', checked)}
             />
           </div>
 
@@ -200,7 +295,7 @@ export function BackupSettings() {
             </div>
             <Switch
               checked={backupSettings.compression}
-              onCheckedChange={(checked) => setBackupSettings({...backupSettings, compression: checked})}
+              onCheckedChange={(checked) => handleSettingChange('compression', checked)}
             />
           </div>
         </CardContent>
@@ -219,8 +314,21 @@ export function BackupSettings() {
             <p className="text-sm text-muted-foreground mb-4">
               Execute um backup completo do sistema agora
             </p>
-            <Button onClick={handleManualBackup} className="w-full">
-              Executar Backup Agora
+            {isBackingUp && (
+              <div className="mb-4">
+                <div className="flex justify-between text-sm mb-2">
+                  <span>Progresso</span>
+                  <span>{backupProgress}%</span>
+                </div>
+                <Progress value={backupProgress} className="w-full" />
+              </div>
+            )}
+            <Button 
+              onClick={handleManualBackup} 
+              className="w-full"
+              disabled={isBackingUp}
+            >
+              {isBackingUp ? "Executando..." : "Executar Backup Agora"}
             </Button>
           </CardContent>
         </Card>
@@ -236,7 +344,11 @@ export function BackupSettings() {
             <p className="text-sm text-muted-foreground mb-4">
               Restaurar sistema a partir de um backup
             </p>
-            <Button variant="outline" onClick={handleRestore} className="w-full">
+            <Button 
+              variant="outline" 
+              onClick={() => handleRestore()} 
+              className="w-full"
+            >
               Restaurar Sistema
             </Button>
           </CardContent>
@@ -270,9 +382,22 @@ export function BackupSettings() {
                     {backup.status === "success" ? "Sucesso" : "Falhou"}
                   </Badge>
                   {backup.status === "success" && (
-                    <Button variant="outline" size="sm">
-                      <Download className="w-4 h-4" />
-                    </Button>
+                    <>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => downloadBackup(backup.id)}
+                      >
+                        <Download className="w-4 h-4" />
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleRestore(backup.id)}
+                      >
+                        <Upload className="w-4 h-4" />
+                      </Button>
+                    </>
                   )}
                 </div>
               </div>
@@ -283,10 +408,22 @@ export function BackupSettings() {
 
       {/* Ações */}
       <div className="flex gap-3">
-        <Button onClick={handleSave}>
+        <Button onClick={handleSave} className="flex items-center gap-2">
+          <Save className="w-4 h-4" />
           Salvar Configurações
         </Button>
       </div>
+
+      {/* Diálogo de Confirmação */}
+      <ConfirmDialog
+        open={confirmRestoreOpen}
+        onOpenChange={setConfirmRestoreOpen}
+        title="Confirmar Restauração"
+        description="Tem certeza que deseja restaurar o sistema? Esta ação irá substituir todos os dados atuais pelos dados do backup selecionado. Esta ação não pode ser desfeita."
+        confirmText="Sim, Restaurar"
+        variant="destructive"
+        onConfirm={confirmRestore}
+      />
     </div>
   );
 }

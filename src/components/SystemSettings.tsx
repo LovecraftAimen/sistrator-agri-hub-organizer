@@ -8,13 +8,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Save, 
   RefreshCw, 
   Bell, 
   Globe, 
   Clock,
-  Server
+  Server,
+  AlertTriangle
 } from "lucide-react";
 
 export function SystemSettings() {
@@ -29,14 +32,68 @@ export function SystemSettings() {
     maxUsers: "50"
   });
 
-  const handleSave = () => {
+  const [originalSettings] = useState({...settings});
+  const [confirmResetOpen, setConfirmResetOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleSave = async () => {
+    setIsLoading(true);
     console.log("Salvando configurações:", settings);
-    // Aqui seria feita a chamada para a API
+    
+    // Simular salvamento
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    toast({
+      title: "Sucesso",
+      description: "Configurações do sistema salvas com sucesso"
+    });
+    
+    setIsLoading(false);
   };
 
   const handleReset = () => {
-    console.log("Resetando configurações");
-    // Aqui seria feito o reset para configurações padrão
+    setConfirmResetOpen(true);
+  };
+
+  const confirmReset = () => {
+    setSettings({...originalSettings});
+    setConfirmResetOpen(false);
+    toast({
+      title: "Configurações Restauradas",
+      description: "Todas as configurações foram restauradas para os valores padrão"
+    });
+  };
+
+  const handleSettingChange = (setting: string, value: string | boolean) => {
+    setSettings(prev => ({
+      ...prev,
+      [setting]: value
+    }));
+
+    // Feedback específico para configurações críticas
+    if (setting === 'maintenanceMode' && value) {
+      toast({
+        title: "Modo de Manutenção Ativado",
+        description: "O sistema será bloqueado para novos usuários",
+        variant: "destructive"
+      });
+    }
+
+    if (setting === 'autoBackup' && !value) {
+      toast({
+        title: "Backup Automático Desativado",
+        description: "Lembre-se de fazer backups manuais regularmente",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const testNotifications = () => {
+    toast({
+      title: "Teste de Notificação",
+      description: "As notificações estão funcionando corretamente!"
+    });
   };
 
   return (
@@ -56,12 +113,13 @@ export function SystemSettings() {
               <Input
                 id="systemName"
                 value={settings.systemName}
-                onChange={(e) => setSettings({...settings, systemName: e.target.value})}
+                onChange={(e) => handleSettingChange('systemName', e.target.value)}
+                placeholder="Digite o nome do sistema"
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="timezone">Fuso Horário</Label>
-              <Select value={settings.timezone} onValueChange={(value) => setSettings({...settings, timezone: value})}>
+              <Select value={settings.timezone} onValueChange={(value) => handleSettingChange('timezone', value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -69,6 +127,8 @@ export function SystemSettings() {
                   <SelectItem value="America/Sao_Paulo">São Paulo (UTC-3)</SelectItem>
                   <SelectItem value="America/Brasilia">Brasília (UTC-3)</SelectItem>
                   <SelectItem value="America/Manaus">Manaus (UTC-4)</SelectItem>
+                  <SelectItem value="America/Recife">Recife (UTC-3)</SelectItem>
+                  <SelectItem value="America/Rio_Branco">Rio Branco (UTC-5)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -77,7 +137,7 @@ export function SystemSettings() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="language">Idioma</Label>
-              <Select value={settings.language} onValueChange={(value) => setSettings({...settings, language: value})}>
+              <Select value={settings.language} onValueChange={(value) => handleSettingChange('language', value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -93,8 +153,11 @@ export function SystemSettings() {
               <Input
                 id="sessionTimeout"
                 type="number"
+                min="15"
+                max="480"
                 value={settings.sessionTimeout}
-                onChange={(e) => setSettings({...settings, sessionTimeout: e.target.value})}
+                onChange={(e) => handleSettingChange('sessionTimeout', e.target.value)}
+                placeholder="120"
               />
             </div>
           </div>
@@ -118,10 +181,15 @@ export function SystemSettings() {
               </p>
             </div>
             <div className="flex items-center gap-2">
-              {settings.maintenanceMode && <Badge variant="destructive">Ativo</Badge>}
+              {settings.maintenanceMode && (
+                <Badge variant="destructive" className="flex items-center gap-1">
+                  <AlertTriangle className="w-3 h-3" />
+                  Ativo
+                </Badge>
+              )}
               <Switch
                 checked={settings.maintenanceMode}
-                onCheckedChange={(checked) => setSettings({...settings, maintenanceMode: checked})}
+                onCheckedChange={(checked) => handleSettingChange('maintenanceMode', checked)}
               />
             </div>
           </div>
@@ -135,10 +203,21 @@ export function SystemSettings() {
                 Receber notificações sobre eventos do sistema
               </p>
             </div>
-            <Switch
-              checked={settings.notifications}
-              onCheckedChange={(checked) => setSettings({...settings, notifications: checked})}
-            />
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={testNotifications}
+                disabled={!settings.notifications}
+              >
+                <Bell className="w-4 h-4 mr-2" />
+                Testar
+              </Button>
+              <Switch
+                checked={settings.notifications}
+                onCheckedChange={(checked) => handleSettingChange('notifications', checked)}
+              />
+            </div>
           </div>
 
           <Separator />
@@ -150,10 +229,13 @@ export function SystemSettings() {
                 Executar backup automático diariamente
               </p>
             </div>
-            <Switch
-              checked={settings.autoBackup}
-              onCheckedChange={(checked) => setSettings({...settings, autoBackup: checked})}
-            />
+            <div className="flex items-center gap-2">
+              {settings.autoBackup && <Badge>Ativo</Badge>}
+              <Switch
+                checked={settings.autoBackup}
+                onCheckedChange={(checked) => handleSettingChange('autoBackup', checked)}
+              />
+            </div>
           </div>
 
           <Separator />
@@ -163,24 +245,50 @@ export function SystemSettings() {
             <Input
               id="maxUsers"
               type="number"
+              min="1"
+              max="1000"
               value={settings.maxUsers}
-              onChange={(e) => setSettings({...settings, maxUsers: e.target.value})}
+              onChange={(e) => handleSettingChange('maxUsers', e.target.value)}
+              placeholder="50"
             />
+            <p className="text-sm text-muted-foreground">
+              Limite de usuários que podem acessar o sistema simultaneamente
+            </p>
           </div>
         </CardContent>
       </Card>
 
       {/* Ações */}
       <div className="flex gap-3">
-        <Button onClick={handleSave} className="flex items-center gap-2">
+        <Button 
+          onClick={handleSave} 
+          className="flex items-center gap-2"
+          disabled={isLoading}
+        >
           <Save className="w-4 h-4" />
-          Salvar Configurações
+          {isLoading ? "Salvando..." : "Salvar Configurações"}
         </Button>
-        <Button variant="outline" onClick={handleReset} className="flex items-center gap-2">
+        <Button 
+          variant="outline" 
+          onClick={handleReset} 
+          className="flex items-center gap-2"
+          disabled={isLoading}
+        >
           <RefreshCw className="w-4 h-4" />
           Restaurar Padrões
         </Button>
       </div>
+
+      {/* Diálogo de Confirmação */}
+      <ConfirmDialog
+        open={confirmResetOpen}
+        onOpenChange={setConfirmResetOpen}
+        title="Restaurar Configurações Padrão"
+        description="Tem certeza que deseja restaurar todas as configurações para os valores padrão? Esta ação não pode ser desfeita."
+        confirmText="Sim, Restaurar"
+        variant="destructive"
+        onConfirm={confirmReset}
+      />
     </div>
   );
 }
