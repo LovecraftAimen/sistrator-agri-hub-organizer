@@ -9,15 +9,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Users, Phone, MapPin, Download, Settings, Trash2, UserCheck } from "lucide-react";
+import { Plus, Search, Users, Phone, MapPin, Download, Edit, Trash2 } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { AdvancedFilters } from "@/components/AdvancedFilters";
 import { StatsCard } from "@/components/StatsCard";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { StatusDialog } from "@/components/StatusDialog";
+import { EditBeneficiarioDialog } from "@/components/EditBeneficiarioDialog";
 import { DeleteBeneficiarioDialog } from "@/components/DeleteBeneficiarioDialog";
+import { CPFInput } from "@/components/CPFInput";
 import { useDataExport } from "@/hooks/useDataExport";
 
 const Beneficiarios = () => {
@@ -25,10 +26,22 @@ const Beneficiarios = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [showStatusDialog, setShowStatusDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedBeneficiario, setSelectedBeneficiario] = useState<any>(null);
   const [activeFilters, setActiveFilters] = useState<Record<string, any>>({});
+  const [formData, setFormData] = useState({
+    nome: '',
+    apelido: '',
+    cpf: '',
+    telefone: '',
+    endereco: '',
+    propriedade: '',
+    tamanho: '',
+    culturas: '',
+    municipio: '',
+    outrasAtividades: ''
+  });
   const { exportData, isExporting } = useDataExport();
   
   // Mock data para beneficiários com CPF e status expandidos
@@ -92,12 +105,43 @@ const Beneficiarios = () => {
     { key: "dataCadastro", label: "Data de Cadastro", type: "date" as const },
   ];
 
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
     // Simula envio
     await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Adiciona novo beneficiário
+    const newBeneficiario = {
+      id: beneficiarios.length + 1,
+      ...formData,
+      status: "Pendente",
+      dataCadastro: new Date().toISOString().split('T')[0]
+    };
+    
+    setBeneficiarios(prev => [...prev, newBeneficiario]);
+    
+    // Reset form
+    setFormData({
+      nome: '',
+      apelido: '',
+      cpf: '',
+      telefone: '',
+      endereco: '',
+      propriedade: '',
+      tamanho: '',
+      culturas: '',
+      municipio: '',
+      outrasAtividades: ''
+    });
     
     toast.success("Beneficiário cadastrado com sucesso!");
     setShowForm(false);
@@ -116,13 +160,13 @@ const Beneficiarios = () => {
     }
   };
 
-  const handleStatusChange = (id: number, newStatus: string) => {
+  const handleUpdateBeneficiario = (id: number, updatedData: any) => {
     setBeneficiarios(prev => 
       prev.map(b => 
-        b.id === id ? { ...b, status: newStatus } : b
+        b.id === id ? { ...b, ...updatedData } : b
       )
     );
-    toast.success(`Status alterado para "${newStatus}" com sucesso!`);
+    toast.success("Beneficiário atualizado com sucesso!");
   };
 
   const handleDeleteBeneficiario = (id: number) => {
@@ -130,9 +174,9 @@ const Beneficiarios = () => {
     toast.success("Beneficiário excluído com sucesso!");
   };
 
-  const openStatusDialog = (beneficiario: any) => {
+  const openEditDialog = (beneficiario: any) => {
     setSelectedBeneficiario(beneficiario);
-    setShowStatusDialog(true);
+    setShowEditDialog(true);
   };
 
   const openDeleteDialog = (beneficiario: any) => {
@@ -217,33 +261,89 @@ const Beneficiarios = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="nome">Nome Completo</Label>
-                          <Input id="nome" placeholder="Digite o nome completo" required />
+                          <Input 
+                            id="nome" 
+                            placeholder="Digite o nome completo"
+                            value={formData.nome}
+                            onChange={(e) => handleInputChange('nome', e.target.value)}
+                            required 
+                          />
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="apelido">Apelido</Label>
-                          <Input id="apelido" placeholder="Como é conhecido" />
+                          <Input 
+                            id="apelido" 
+                            placeholder="Como é conhecido"
+                            value={formData.apelido}
+                            onChange={(e) => handleInputChange('apelido', e.target.value)}
+                          />
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="telefone">Telefone</Label>
-                          <Input id="telefone" placeholder="(11) 99999-9999" required />
+                          <Label htmlFor="cpf">CPF</Label>
+                          <CPFInput
+                            value={formData.cpf}
+                            onChange={(value) => handleInputChange('cpf', value)}
+                            placeholder="000.000.000-00"
+                          />
                         </div>
                         <div className="space-y-2">
+                          <Label htmlFor="telefone">Telefone</Label>
+                          <Input 
+                            id="telefone" 
+                            placeholder="(11) 99999-9999"
+                            value={formData.telefone}
+                            onChange={(e) => handleInputChange('telefone', e.target.value)}
+                            required 
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
                           <Label htmlFor="endereco">Endereço Residencial</Label>
-                          <Input id="endereco" placeholder="Rua, número, bairro" required />
+                          <Input 
+                            id="endereco" 
+                            placeholder="Rua, número, bairro"
+                            value={formData.endereco}
+                            onChange={(e) => handleInputChange('endereco', e.target.value)}
+                            required 
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="municipio">Município</Label>
+                          <Input 
+                            id="municipio" 
+                            placeholder="Nome do município"
+                            value={formData.municipio}
+                            onChange={(e) => handleInputChange('municipio', e.target.value)}
+                            required 
+                          />
                         </div>
                       </div>
 
                       <div className="space-y-2">
                         <Label htmlFor="propriedade">Endereço da Propriedade Rural</Label>
-                        <Input id="propriedade" placeholder="Localização da propriedade" required />
+                        <Input 
+                          id="propriedade" 
+                          placeholder="Localização da propriedade"
+                          value={formData.propriedade}
+                          onChange={(e) => handleInputChange('propriedade', e.target.value)}
+                          required 
+                        />
                       </div>
 
                       <div className="space-y-2">
                         <Label htmlFor="tamanho">Tamanho da Propriedade</Label>
-                        <Input id="tamanho" placeholder="Ex: 10 hectares" required />
+                        <Input 
+                          id="tamanho" 
+                          placeholder="Ex: 10 hectares"
+                          value={formData.tamanho}
+                          onChange={(e) => handleInputChange('tamanho', e.target.value)}
+                          required 
+                        />
                       </div>
 
                       <div className="space-y-2">
@@ -251,13 +351,15 @@ const Beneficiarios = () => {
                         <Textarea 
                           id="culturas" 
                           placeholder="Ex: Milho, Soja, Feijão..."
+                          value={formData.culturas}
+                          onChange={(e) => handleInputChange('culturas', e.target.value)}
                           className="min-h-[80px]"
                         />
                       </div>
 
                       <div className="space-y-2">
                         <Label htmlFor="outras-atividades">Trabalha com Outras Atividades Agrícolas?</Label>
-                        <Select>
+                        <Select value={formData.outrasAtividades} onValueChange={(value) => handleInputChange('outrasAtividades', value)}>
                           <SelectTrigger>
                             <SelectValue placeholder="Selecione uma opção" />
                           </SelectTrigger>
@@ -387,10 +489,10 @@ const Beneficiarios = () => {
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => openStatusDialog(beneficiario)}
+                                    onClick={() => openEditDialog(beneficiario)}
                                     className="h-8"
                                   >
-                                    <Settings className="w-4 h-4" />
+                                    <Edit className="w-4 h-4" />
                                   </Button>
                                   <Button
                                     variant="outline"
@@ -414,12 +516,12 @@ const Beneficiarios = () => {
           </div>
         </main>
 
-        {/* Status Dialog */}
-        <StatusDialog
-          open={showStatusDialog}
-          onOpenChange={setShowStatusDialog}
+        {/* Edit Dialog */}
+        <EditBeneficiarioDialog
+          open={showEditDialog}
+          onOpenChange={setShowEditDialog}
           beneficiario={selectedBeneficiario}
-          onStatusChange={handleStatusChange}
+          onUpdateBeneficiario={handleUpdateBeneficiario}
         />
 
         {/* Delete Dialog */}
