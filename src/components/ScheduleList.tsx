@@ -15,13 +15,11 @@ import {
 } from "@/components/ui/table";
 import { 
   Search, 
-  Filter, 
   Eye, 
   Calendar,
   Clock, 
   MapPin, 
-  User,
-  Tractor
+  User
 } from "lucide-react";
 import type { Service } from "./ServicesTable";
 
@@ -32,9 +30,6 @@ interface ScheduleListProps {
 
 export function ScheduleList({ services, onViewService }: ScheduleListProps) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [tratoristaFilter, setTratoristaFilter] = useState<string>("all");
-  const [tipoFilter, setTipoFilter] = useState<string>("all");
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -73,15 +68,8 @@ export function ScheduleList({ services, onViewService }: ScheduleListProps) {
       service.tipo.toLowerCase().includes(searchTerm.toLowerCase()) ||
       service.endereco.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesStatus = statusFilter === "all" || service.status === statusFilter;
-    const matchesTratorist = tratoristaFilter === "all" || service.tratorista === tratoristaFilter;
-    const matchesTipo = tipoFilter === "all" || service.tipo === tipoFilter;
-    
-    return matchesSearch && matchesStatus && matchesTratorist && matchesTipo;
+    return matchesSearch;
   });
-
-  const uniqueTratoristas = Array.from(new Set(services.map(s => s.tratorista)));
-  const uniqueTipos = Array.from(new Set(services.map(s => s.tipo)));
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('pt-BR');
@@ -115,48 +103,6 @@ export function ScheduleList({ services, onViewService }: ScheduleListProps) {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
             />
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              <option value="all">Todos os status</option>
-              <option value="Agendado">Agendado</option>
-              <option value="Em execução">Em execução</option>
-              <option value="Pausado">Pausado</option>
-              <option value="Concluído">Concluído</option>
-              <option value="Cancelado">Cancelado</option>
-            </select>
-
-            <select
-              value={tratoristaFilter}
-              onChange={(e) => setTratoristaFilter(e.target.value)}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              <option value="all">Todos os tratoristas</option>
-              {uniqueTratoristas.map(tratorista => (
-                <option key={tratorista} value={tratorista}>{tratorista}</option>
-              ))}
-            </select>
-
-            <select
-              value={tipoFilter}
-              onChange={(e) => setTipoFilter(e.target.value)}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              <option value="all">Todos os tipos</option>
-              {uniqueTipos.map(tipo => (
-                <option key={tipo} value={tipo}>{tipo}</option>
-              ))}
-            </select>
-            
-            <Button variant="outline" size="sm">
-              <Filter className="w-4 h-4 mr-2" />
-              Filtros
-            </Button>
           </div>
         </div>
       </CardHeader>

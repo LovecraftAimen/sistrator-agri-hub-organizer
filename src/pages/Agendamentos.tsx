@@ -10,13 +10,13 @@ import { ScheduleList } from "@/components/ScheduleList";
 import { ScheduleStats } from "@/components/ScheduleStats";
 import { ServiceDetails } from "@/components/ServiceDetails";
 import { ServiceForm } from "@/components/ServiceForm";
+import { AdvancedFilters } from "@/components/AdvancedFilters";
 import { type Service } from "@/components/ServicesTable";
 import { 
   Calendar, 
   List, 
   BarChart3,
   Plus,
-  Filter,
   Download
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -140,7 +140,75 @@ const Agendamentos = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [showNewServiceForm, setShowNewServiceForm] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<Record<string, any>>({});
   const { toast } = useToast();
+
+  const filterOptions = [
+    {
+      key: "beneficiario",
+      label: "Beneficiário",
+      type: "text" as const,
+    },
+    {
+      key: "tratorista",
+      label: "Tratorista",
+      type: "select" as const,
+      options: [
+        { value: "Carlos Alberto Santos", label: "Carlos Alberto Santos" },
+        { value: "José Pereira Lima", label: "José Pereira Lima" },
+        { value: "Antonio Lima Souza", label: "Antonio Lima Souza" },
+      ],
+    },
+    {
+      key: "tipo",
+      label: "Tipo de Serviço",
+      type: "select" as const,
+      options: [
+        { value: "Aração", label: "Aração" },
+        { value: "Gradagem", label: "Gradagem" },
+        { value: "Subsolagem", label: "Subsolagem" },
+        { value: "Plantio Direto", label: "Plantio Direto" },
+      ],
+    },
+    {
+      key: "status",
+      label: "Status",
+      type: "select" as const,
+      options: [
+        { value: "Agendado", label: "Agendado" },
+        { value: "Em execução", label: "Em execução" },
+        { value: "Pausado", label: "Pausado" },
+        { value: "Concluído", label: "Concluído" },
+        { value: "Cancelado", label: "Cancelado" },
+      ],
+    },
+    {
+      key: "regiao",
+      label: "Região",
+      type: "select" as const,
+      options: [
+        { value: "Norte", label: "Norte" },
+        { value: "Sul", label: "Sul" },
+        { value: "Leste", label: "Leste" },
+        { value: "Oeste", label: "Oeste" },
+      ],
+    },
+    {
+      key: "prioridade",
+      label: "Prioridade",
+      type: "select" as const,
+      options: [
+        { value: "Alta", label: "Alta" },
+        { value: "Média", label: "Média" },
+        { value: "Baixa", label: "Baixa" },
+      ],
+    },
+    {
+      key: "dataAgendamento",
+      label: "Data de Agendamento",
+      type: "date" as const,
+    },
+  ];
 
   const handleServiceClick = (service: Service) => {
     setSelectedService(service);
@@ -167,6 +235,36 @@ const Agendamentos = () => {
     setShowNewServiceForm(false);
   };
 
+  const handleFiltersChange = (filters: Record<string, any>) => {
+    setActiveFilters(filters);
+  };
+
+  // Filter services based on active filters
+  const filteredServices = mockServices.filter((service) => {
+    return Object.entries(activeFilters).every(([key, value]) => {
+      if (!value) return true;
+      
+      switch (key) {
+        case "beneficiario":
+          return service.beneficiario.toLowerCase().includes(value.toLowerCase());
+        case "tratorista":
+          return service.tratorista === value;
+        case "tipo":
+          return service.tipo === value;
+        case "status":
+          return service.status === value;
+        case "regiao":
+          return service.regiao === value;
+        case "prioridade":
+          return service.prioridade === value;
+        case "dataAgendamento":
+          return service.dataAgendamento === value;
+        default:
+          return true;
+      }
+    });
+  });
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
@@ -185,10 +283,6 @@ const Agendamentos = () => {
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm">
-                  <Filter className="w-4 h-4 mr-2" />
-                  Filtros
-                </Button>
-                <Button variant="outline" size="sm">
                   <Download className="w-4 h-4 mr-2" />
                   Exportar
                 </Button>
@@ -201,42 +295,50 @@ const Agendamentos = () => {
           </div>
           
           <div className="flex-1 overflow-auto p-6">
-            <Tabs defaultValue="calendar" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="calendar" className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4" />
-                  Calendário
-                </TabsTrigger>
-                <TabsTrigger value="list" className="flex items-center gap-2">
-                  <List className="w-4 h-4" />
-                  Lista
-                </TabsTrigger>
-                <TabsTrigger value="stats" className="flex items-center gap-2">
-                  <BarChart3 className="w-4 h-4" />
-                  Estatísticas
-                </TabsTrigger>
-              </TabsList>
+            <div className="space-y-6">
+              <AdvancedFilters
+                filters={filterOptions}
+                onFiltersChange={handleFiltersChange}
+                activeFilters={activeFilters}
+              />
+              
+              <Tabs defaultValue="calendar" className="space-y-6">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="calendar" className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    Calendário
+                  </TabsTrigger>
+                  <TabsTrigger value="list" className="flex items-center gap-2">
+                    <List className="w-4 h-4" />
+                    Lista
+                  </TabsTrigger>
+                  <TabsTrigger value="stats" className="flex items-center gap-2">
+                    <BarChart3 className="w-4 h-4" />
+                    Estatísticas
+                  </TabsTrigger>
+                </TabsList>
 
-              <TabsContent value="calendar">
-                <ScheduleCalendar
-                  services={mockServices}
-                  selectedDate={selectedDate}
-                  onDateSelect={setSelectedDate}
-                  onServiceClick={handleServiceClick}
-                />
-              </TabsContent>
+                <TabsContent value="calendar">
+                  <ScheduleCalendar
+                    services={filteredServices}
+                    selectedDate={selectedDate}
+                    onDateSelect={setSelectedDate}
+                    onServiceClick={handleServiceClick}
+                  />
+                </TabsContent>
 
-              <TabsContent value="list">
-                <ScheduleList
-                  services={mockServices}
-                  onViewService={handleServiceClick}
-                />
-              </TabsContent>
+                <TabsContent value="list">
+                  <ScheduleList
+                    services={filteredServices}
+                    onViewService={handleServiceClick}
+                  />
+                </TabsContent>
 
-              <TabsContent value="stats">
-                <ScheduleStats services={mockServices} />
-              </TabsContent>
-            </Tabs>
+                <TabsContent value="stats">
+                  <ScheduleStats services={filteredServices} />
+                </TabsContent>
+              </Tabs>
+            </div>
           </div>
         </main>
 
