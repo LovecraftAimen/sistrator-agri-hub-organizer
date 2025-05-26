@@ -123,9 +123,17 @@ const Login = () => {
 
           <div className="mt-6 text-center text-sm text-muted-foreground">
             <p>Credenciais de demonstração:</p>
-            <p className="font-mono text-xs mt-1">
-              secagri@sistrator.com | sis123456
-            </p>
+            <div className="space-y-1 mt-2">
+              <p className="font-mono text-xs">
+                secagri@sistrator.com | sis123456 (Admin)
+              </p>
+              <p className="font-mono text-xs">
+                prefeito@sistrator.com | pref123456 (Prefeito)
+              </p>
+              <p className="font-mono text-xs">
+                vereador@sistrator.com | ver123456 (Vereador)
+              </p>
+            </div>
           </div>
         </CardContent>
       </Card>

@@ -62,6 +62,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         role: 'prefeito'
       };
     }
+    // Verificar credenciais do Vereador
+    else if (email === 'vereador@sistrator.com' && password === 'ver123456') {
+      userData = {
+        email: email,
+        name: 'Vereador Municipal',
+        role: 'vereador'
+      };
+    }
     
     if (userData) {
       setUser(userData);

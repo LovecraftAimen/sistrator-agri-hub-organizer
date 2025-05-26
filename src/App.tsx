@@ -43,7 +43,9 @@ const App = () => (
             } />
             <Route path="/beneficiarios" element={
               <ProtectedRoute>
-                <Beneficiarios />
+                <RoleBasedRoute allowedRoles={['admin', 'prefeito', 'vereador']}>
+                  <Beneficiarios />
+                </RoleBasedRoute>
               </ProtectedRoute>
             } />
             <Route path="/tratoristas" element={
@@ -76,7 +78,7 @@ const App = () => (
             } />
             <Route path="/configuracoes" element={
               <ProtectedRoute>
-                <RoleBasedRoute allowedRoles={['admin']}>
+                <RoleBasedRoute allowedRoles={['admin', 'prefeito', 'vereador']}>
                   <Configuracoes />
                 </RoleBasedRoute>
               </ProtectedRoute>

@@ -1,6 +1,6 @@
-
 import { useAuth } from "@/contexts/AuthContext";
 import { PrefeitoSidebar } from "./PrefeitoSidebar";
+import { VereadorSidebar } from "./VereadorSidebar";
 import { 
   Tractor, 
   Users, 
@@ -82,6 +82,11 @@ export function AppSidebar() {
   // Se for prefeito, usar sidebar específico
   if (user?.role === 'prefeito') {
     return <PrefeitoSidebar />;
+  }
+
+  // Se for vereador, usar sidebar específico
+  if (user?.role === 'vereador') {
+    return <VereadorSidebar />;
   }
 
   const handleLogout = () => {

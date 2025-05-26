@@ -40,7 +40,7 @@ const menuItems = [
   },
 ];
 
-export function PrefeitoSidebar() {
+export function VereadorSidebar() {
   const location = useLocation();
   const { user, logout } = useAuth();
   const { toast } = useToast();
@@ -62,7 +62,7 @@ export function PrefeitoSidebar() {
           </div>
           <div>
             <h2 className="text-xl font-bold text-foreground">Sistrator</h2>
-            <p className="text-sm text-muted-foreground">Prefeitura Municipal</p>
+            <p className="text-sm text-muted-foreground">Câmara Municipal</p>
           </div>
         </div>
       </SidebarHeader>
