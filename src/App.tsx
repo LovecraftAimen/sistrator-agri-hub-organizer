@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { RoleBasedRoute } from "@/components/RoleBasedRoute";
 import Login from "./pages/Login";
 import Index from "./pages/Index";
 import Servicos from "./pages/Servicos";
@@ -35,7 +36,9 @@ const App = () => (
             } />
             <Route path="/servicos" element={
               <ProtectedRoute>
-                <Servicos />
+                <RoleBasedRoute allowedRoles={['admin']}>
+                  <Servicos />
+                </RoleBasedRoute>
               </ProtectedRoute>
             } />
             <Route path="/beneficiarios" element={
@@ -45,27 +48,37 @@ const App = () => (
             } />
             <Route path="/tratoristas" element={
               <ProtectedRoute>
-                <Tratoristas />
+                <RoleBasedRoute allowedRoles={['admin']}>
+                  <Tratoristas />
+                </RoleBasedRoute>
               </ProtectedRoute>
             } />
             <Route path="/agendamentos" element={
               <ProtectedRoute>
-                <Agendamentos />
+                <RoleBasedRoute allowedRoles={['admin']}>
+                  <Agendamentos />
+                </RoleBasedRoute>
               </ProtectedRoute>
             } />
             <Route path="/relatorios" element={
               <ProtectedRoute>
-                <Relatorios />
+                <RoleBasedRoute allowedRoles={['admin']}>
+                  <Relatorios />
+                </RoleBasedRoute>
               </ProtectedRoute>
             } />
             <Route path="/documentos" element={
               <ProtectedRoute>
-                <Documentos />
+                <RoleBasedRoute allowedRoles={['admin']}>
+                  <Documentos />
+                </RoleBasedRoute>
               </ProtectedRoute>
             } />
             <Route path="/configuracoes" element={
               <ProtectedRoute>
-                <Configuracoes />
+                <RoleBasedRoute allowedRoles={['admin']}>
+                  <Configuracoes />
+                </RoleBasedRoute>
               </ProtectedRoute>
             } />
             <Route path="*" element={<NotFound />} />

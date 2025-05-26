@@ -39,12 +39,12 @@ const Beneficiarios = () => {
     propriedade: '',
     tamanho: '',
     culturas: '',
-    municipio: '',
+    regiao: '',
     outrasAtividades: ''
   });
   const { exportData, isExporting } = useDataExport();
   
-  // Mock data para beneficiários com CPF e status expandidos
+  // Mock data para beneficiários com regiões Norte, Sul, Leste e Oeste
   const [beneficiarios, setBeneficiarios] = useState([
     {
       id: 1,
@@ -57,7 +57,7 @@ const Beneficiarios = () => {
       tamanho: "15 hectares",
       culturas: "Milho, Soja",
       status: "Ativo",
-      municipio: "São Paulo",
+      regiao: "Norte",
       dataCadastro: "2024-01-15"
     },
     {
@@ -71,7 +71,7 @@ const Beneficiarios = () => {
       tamanho: "8 hectares",
       culturas: "Feijão, Mandioca",
       status: "Pendente",
-      municipio: "Campinas",
+      regiao: "Sul",
       dataCadastro: "2024-02-10"
     },
     {
@@ -85,17 +85,18 @@ const Beneficiarios = () => {
       tamanho: "25 hectares",
       culturas: "Café, Milho",
       status: "Inativo",
-      municipio: "Sorocaba",
+      regiao: "Leste",
       dataCadastro: "2024-01-20"
     }
   ]);
 
   const filterOptions = [
     { key: "nome", label: "Nome", type: "text" as const },
-    { key: "municipio", label: "Município", type: "select" as const, options: [
-      { value: "São Paulo", label: "São Paulo" },
-      { value: "Campinas", label: "Campinas" },
-      { value: "Sorocaba", label: "Sorocaba" },
+    { key: "regiao", label: "Região", type: "select" as const, options: [
+      { value: "Norte", label: "Norte" },
+      { value: "Sul", label: "Sul" },
+      { value: "Leste", label: "Leste" },
+      { value: "Oeste", label: "Oeste" },
     ]},
     { key: "status", label: "Status", type: "select" as const, options: [
       { value: "Ativo", label: "Ativo" },
@@ -139,7 +140,7 @@ const Beneficiarios = () => {
       propriedade: '',
       tamanho: '',
       culturas: '',
-      municipio: '',
+      regiao: '',
       outrasAtividades: ''
     });
     
@@ -191,6 +192,9 @@ const Beneficiarios = () => {
     const matchesFilters = Object.entries(activeFilters).every(([key, value]) => {
       if (!value) return true;
       const fieldValue = b[key as keyof typeof b];
+      if (key === 'regiao' || key === 'status') {
+        return fieldValue === value;
+      }
       return fieldValue?.toString().toLowerCase().includes(value.toLowerCase());
     });
 
@@ -313,14 +317,18 @@ const Beneficiarios = () => {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="municipio">Município</Label>
-                          <Input 
-                            id="municipio" 
-                            placeholder="Nome do município"
-                            value={formData.municipio}
-                            onChange={(e) => handleInputChange('municipio', e.target.value)}
-                            required 
-                          />
+                          <Label htmlFor="regiao">Região</Label>
+                          <Select value={formData.regiao} onValueChange={(value) => handleInputChange('regiao', value)}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecione a região" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Norte">Norte</SelectItem>
+                              <SelectItem value="Sul">Sul</SelectItem>
+                              <SelectItem value="Leste">Leste</SelectItem>
+                              <SelectItem value="Oeste">Oeste</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
                       </div>
 

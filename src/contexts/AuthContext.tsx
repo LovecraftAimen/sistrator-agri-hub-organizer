@@ -44,14 +44,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Simular delay de autenticação
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    // Verificar credenciais
+    let userData: User | null = null;
+    
+    // Verificar credenciais do Secretário
     if (email === 'secagri@sistrator.com' && password === 'sis123456') {
-      const userData: User = {
+      userData = {
         email: email,
         name: 'Secretário de Agricultura',
         role: 'admin'
       };
-      
+    }
+    // Verificar credenciais do Prefeito
+    else if (email === 'prefeito@sistrator.com' && password === 'pref123456') {
+      userData = {
+        email: email,
+        name: 'Prefeito Municipal',
+        role: 'prefeito'
+      };
+    }
+    
+    if (userData) {
       setUser(userData);
       localStorage.setItem('sistrator_user', JSON.stringify(userData));
       setIsLoading(false);

@@ -1,18 +1,11 @@
 
-import { useAuth } from "@/contexts/AuthContext";
-import { PrefeitoSidebar } from "./PrefeitoSidebar";
 import { 
-  Tractor, 
   Users, 
-  ClipboardList, 
-  BarChart3, 
-  Settings,
   Home,
-  Calendar,
-  FileText,
   LogOut
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -35,54 +28,16 @@ const menuItems = [
     icon: Home,
   },
   {
-    title: "Serviços Ativos",
-    url: "/servicos",
-    icon: Tractor,
-  },
-  {
     title: "Beneficiários",
     url: "/beneficiarios",
     icon: Users,
   },
-  {
-    title: "Tratoristas",
-    url: "/tratoristas",
-    icon: ClipboardList,
-  },
-  {
-    title: "Agendamentos",
-    url: "/agendamentos",
-    icon: Calendar,
-  },
-  {
-    title: "Relatórios",
-    url: "/relatorios",
-    icon: BarChart3,
-  },
-  {
-    title: "Documentos",
-    url: "/documentos",
-    icon: FileText,
-  },
 ];
 
-const adminItems = [
-  {
-    title: "Configurações",
-    url: "/configuracoes",
-    icon: Settings,
-  },
-];
-
-export function AppSidebar() {
+export function PrefeitoSidebar() {
   const location = useLocation();
   const { user, logout } = useAuth();
   const { toast } = useToast();
-
-  // Se for prefeito, usar sidebar específico
-  if (user?.role === 'prefeito') {
-    return <PrefeitoSidebar />;
-  }
 
   const handleLogout = () => {
     logout();
@@ -97,11 +52,11 @@ export function AppSidebar() {
       <SidebarHeader className="p-6">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg gradient-bg flex items-center justify-center">
-            <Tractor className="w-6 h-6 text-white" />
+            <Users className="w-6 h-6 text-white" />
           </div>
           <div>
             <h2 className="text-xl font-bold text-foreground">Sistrator</h2>
-            <p className="text-sm text-muted-foreground">Secretaria de Agricultura</p>
+            <p className="text-sm text-muted-foreground">Prefeitura Municipal</p>
           </div>
         </div>
       </SidebarHeader>
@@ -114,30 +69,6 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild 
-                    isActive={location.pathname === item.url}
-                    className="hover:bg-accent hover:text-accent-foreground transition-colors"
-                  >
-                    <Link to={item.url} className="flex items-center gap-3 px-3 py-2">
-                      <item.icon className="w-5 h-5" />
-                      <span className="font-medium">{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Administração
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {adminItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
                     asChild 
@@ -167,7 +98,7 @@ export function AppSidebar() {
             <p className="text-sm font-medium text-accent-foreground truncate">
               {user?.name}
             </p>
-            <p className="text-xs text-muted-foreground">Acesso total</p>
+            <p className="text-xs text-muted-foreground">Acesso limitado</p>
           </div>
         </div>
         

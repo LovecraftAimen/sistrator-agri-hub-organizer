@@ -4,13 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ServicesTable, type Service } from "@/components/ServicesTable";
 import { ServiceDetails } from "@/components/ServiceDetails";
 import { ServiceForm } from "@/components/ServiceForm";
-import { AdvancedFilters } from "@/components/AdvancedFilters";
 import { PDFExportButton } from "@/components/PDFExportButton";
-import { Plus, Calendar, Activity } from "lucide-react";
+import { Plus, Calendar, Activity, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Servicos = () => {
@@ -20,68 +21,6 @@ const Servicos = () => {
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [showNewServiceForm, setShowNewServiceForm] = useState(false);
   const [filters, setFilters] = useState<Record<string, any>>({});
-
-  const filterOptions = [
-    {
-      key: "beneficiario",
-      label: "Beneficiário",
-      type: "text" as const,
-    },
-    {
-      key: "tratorista",
-      label: "Tratorista",
-      type: "text" as const,
-    },
-    {
-      key: "status",
-      label: "Status",
-      type: "select" as const,
-      options: [
-        { value: "Agendado", label: "Agendado" },
-        { value: "Em execução", label: "Em execução" },
-        { value: "Pausado", label: "Pausado" },
-        { value: "Concluído", label: "Concluído" },
-        { value: "Cancelado", label: "Cancelado" },
-      ],
-    },
-    {
-      key: "tipo",
-      label: "Tipo de Serviço",
-      type: "select" as const,
-      options: [
-        { value: "Aração", label: "Aração" },
-        { value: "Gradagem", label: "Gradagem" },
-        { value: "Subsolagem", label: "Subsolagem" },
-        { value: "Plantio Direto", label: "Plantio Direto" },
-      ],
-    },
-    {
-      key: "prioridade",
-      label: "Prioridade",
-      type: "select" as const,
-      options: [
-        { value: "Alta", label: "Alta" },
-        { value: "Média", label: "Média" },
-        { value: "Baixa", label: "Baixa" },
-      ],
-    },
-    {
-      key: "regiao",
-      label: "Região",
-      type: "select" as const,
-      options: [
-        { value: "Norte", label: "Norte" },
-        { value: "Sul", label: "Sul" },
-        { value: "Leste", label: "Leste" },
-        { value: "Oeste", label: "Oeste" },
-      ],
-    },
-    {
-      key: "dataAgendamento",
-      label: "Data de Agendamento",
-      type: "date" as const,
-    },
-  ];
 
   const handleViewService = (service: Service) => {
     setSelectedService(service);
@@ -257,11 +196,67 @@ const Servicos = () => {
           </div>
           
           <div className="flex-1 overflow-auto p-6 space-y-6">
-            <AdvancedFilters
-              filters={filterOptions}
-              onFiltersChange={setFilters}
-              activeFilters={filters}
-            />
+            {/* Integrated Filters */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar beneficiário..."
+                  value={filters.beneficiario || ""}
+                  onChange={(e) => setFilters(prev => ({ ...prev, beneficiario: e.target.value }))}
+                  className="pl-10"
+                />
+              </div>
+              
+              <Select
+                value={filters.status || ""}
+                onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Filtrar por status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Todos os status</SelectItem>
+                  <SelectItem value="Agendado">Agendado</SelectItem>
+                  <SelectItem value="Em execução">Em execução</SelectItem>
+                  <SelectItem value="Pausado">Pausado</SelectItem>
+                  <SelectItem value="Concluído">Concluído</SelectItem>
+                  <SelectItem value="Cancelado">Cancelado</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select
+                value={filters.tipo || ""}
+                onValueChange={(value) => setFilters(prev => ({ ...prev, tipo: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Tipo de serviço" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Todos os tipos</SelectItem>
+                  <SelectItem value="Aração">Aração</SelectItem>
+                  <SelectItem value="Gradagem">Gradagem</SelectItem>
+                  <SelectItem value="Subsolagem">Subsolagem</SelectItem>
+                  <SelectItem value="Plantio Direto">Plantio Direto</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select
+                value={filters.regiao || ""}
+                onValueChange={(value) => setFilters(prev => ({ ...prev, regiao: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Região" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Todas as regiões</SelectItem>
+                  <SelectItem value="Norte">Norte</SelectItem>
+                  <SelectItem value="Sul">Sul</SelectItem>
+                  <SelectItem value="Leste">Leste</SelectItem>
+                  <SelectItem value="Oeste">Oeste</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             
             <ServicesTable 
               onViewService={handleViewService}
