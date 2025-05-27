@@ -1,3 +1,4 @@
+
 import { useAuth } from "@/contexts/AuthContext";
 import { PrefeitoSidebar } from "./PrefeitoSidebar";
 import { VereadorSidebar } from "./VereadorSidebar";
@@ -76,8 +77,15 @@ const adminItems = [
 
 export function AppSidebar() {
   const location = useLocation();
-  const { user, logout } = useAuth();
+  const auth = useAuth();
   const { toast } = useToast();
+
+  // Adicionar verificação de segurança
+  if (!auth || auth.isLoading) {
+    return null;
+  }
+
+  const { user, logout } = auth;
 
   // Se for prefeito, usar sidebar específico
   if (user?.role === 'prefeito') {

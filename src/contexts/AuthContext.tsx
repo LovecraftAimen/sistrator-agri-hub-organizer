@@ -33,7 +33,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Verificar se existe usuário logado no localStorage
     const savedUser = localStorage.getItem('sistrator_user');
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (error) {
+        console.error('Error parsing saved user:', error);
+        localStorage.removeItem('sistrator_user');
+      }
     }
     setIsLoading(false);
   }, []);
