@@ -209,14 +209,14 @@ const Servicos = () => {
               </div>
               
               <Select
-                value={filters.status || ""}
-                onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}
+                value={filters.status || "todos"}
+                onValueChange={(value) => setFilters(prev => ({ ...prev, status: value === "todos" ? "" : value }))}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Filtrar por status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos os status</SelectItem>
+                  <SelectItem value="todos">Todos os status</SelectItem>
                   <SelectItem value="Agendado">Agendado</SelectItem>
                   <SelectItem value="Em execução">Em execução</SelectItem>
                   <SelectItem value="Pausado">Pausado</SelectItem>
@@ -226,14 +226,14 @@ const Servicos = () => {
               </Select>
 
               <Select
-                value={filters.tipo || ""}
-                onValueChange={(value) => setFilters(prev => ({ ...prev, tipo: value }))}
+                value={filters.tipo || "todos"}
+                onValueChange={(value) => setFilters(prev => ({ ...prev, tipo: value === "todos" ? "" : value }))}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Tipo de serviço" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos os tipos</SelectItem>
+                  <SelectItem value="todos">Todos os tipos</SelectItem>
                   <SelectItem value="Aração">Aração</SelectItem>
                   <SelectItem value="Gradagem">Gradagem</SelectItem>
                   <SelectItem value="Subsolagem">Subsolagem</SelectItem>
@@ -242,14 +242,14 @@ const Servicos = () => {
               </Select>
 
               <Select
-                value={filters.regiao || ""}
-                onValueChange={(value) => setFilters(prev => ({ ...prev, regiao: value }))}
+                value={filters.regiao || "todas"}
+                onValueChange={(value) => setFilters(prev => ({ ...prev, regiao: value === "todas" ? "" : value }))}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Região" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todas as regiões</SelectItem>
+                  <SelectItem value="todas">Todas as regiões</SelectItem>
                   <SelectItem value="Norte">Norte</SelectItem>
                   <SelectItem value="Sul">Sul</SelectItem>
                   <SelectItem value="Leste">Leste</SelectItem>
