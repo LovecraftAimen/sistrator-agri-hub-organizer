@@ -1,3 +1,4 @@
+
 import { useAuth } from "@/contexts/AuthContext";
 import { PrefeitoSidebar } from "./PrefeitoSidebar";
 import { VereadorSidebar } from "./VereadorSidebar";
@@ -73,47 +74,54 @@ const adminItems = [
 
 export function AppSidebar() {
   const location = useLocation();
-  const auth = useAuth();
   const { toast } = useToast();
 
-  // Se ainda está carregando ou não há contexto de auth, não renderizar nada
-  if (!auth || auth.isLoading) {
+  // Use a try-catch to handle auth context safely
+  let user = null;
+  let logout = null;
+  let isLoading = false;
+
+  try {
+    const auth = useAuth();
+    user = auth.user;
+    logout = auth.logout;
+    isLoading = auth.isLoading;
+  } catch (error) {
+    console.error("Auth context not available:", error);
     return null;
   }
 
-  const { user, logout } = auth;
-
-  // Se não há usuário, retornar null
-  if (!user) {
+  // If still loading or no user, don't render anything
+  if (isLoading || !user) {
     return null;
   }
 
-  // Se for prefeito, usar sidebar específico
+  // Route to specific sidebars based on user role
   if (user.role === 'prefeito') {
     return <PrefeitoSidebar />;
   }
 
-  // Se for vereador, usar sidebar específico
   if (user.role === 'vereador') {
     return <VereadorSidebar />;
   }
 
-  // Se for secretária, usar sidebar específico
   if (user.role === 'secretaria') {
     return <SecretariaSidebar />;
   }
 
-  // Se for tratorista, usar sidebar específico
   if (user.role === 'tratorista') {
     return <TratoristasSidebar />;
   }
 
+  // Default admin sidebar
   const handleLogout = () => {
-    logout();
-    toast({
-      title: "Logout realizado",
-      description: "Você foi desconectado com sucesso.",
-    });
+    if (logout) {
+      logout();
+      toast({
+        title: "Logout realizado",
+        description: "Você foi desconectado com sucesso.",
+      });
+    }
   };
 
   return (
