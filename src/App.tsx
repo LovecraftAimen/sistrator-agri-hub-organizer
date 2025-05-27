@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -46,7 +47,7 @@ const App = () => (
             } />
             <Route path="/beneficiarios" element={
               <ProtectedRoute>
-                <RoleBasedRoute allowedRoles={['admin', 'prefeito', 'vereador', 'secretaria', 'tratorista']}>
+                <RoleBasedRoute allowedRoles={['admin', 'prefeito', 'vereador', 'secretaria']}>
                   <Beneficiarios />
                 </RoleBasedRoute>
               </ProtectedRoute>
