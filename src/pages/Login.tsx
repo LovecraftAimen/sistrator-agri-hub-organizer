@@ -133,6 +133,9 @@ const Login = () => {
               <p className="font-mono text-xs">
                 vereador@sistrator.com | ver123456 (Vereador)
               </p>
+              <p className="font-mono text-xs">
+                secretaria@sistrator.com | sec123456 (Secretária)
+              </p>
             </div>
           </div>
         </CardContent>

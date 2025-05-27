@@ -1,3 +1,4 @@
+
 import { useAuth } from "@/contexts/AuthContext";
 import { PrefeitoSidebar } from "./PrefeitoSidebar";
 import { VereadorSidebar } from "./VereadorSidebar";
@@ -30,11 +31,6 @@ import {
 } from "@/components/ui/sidebar";
 
 const menuItems = [
-  {
-    title: "Dashboard",
-    url: "/",
-    icon: Home,
-  },
   {
     title: "Serviços Ativos",
     url: "/servicos",
@@ -80,25 +76,30 @@ export function AppSidebar() {
   const auth = useAuth();
   const { toast } = useToast();
 
-  // Adicionar verificação de segurança
+  // Se ainda está carregando ou não há contexto de auth, não renderizar nada
   if (!auth || auth.isLoading) {
     return null;
   }
 
   const { user, logout } = auth;
 
+  // Se não há usuário, retornar null
+  if (!user) {
+    return null;
+  }
+
   // Se for prefeito, usar sidebar específico
-  if (user?.role === 'prefeito') {
+  if (user.role === 'prefeito') {
     return <PrefeitoSidebar />;
   }
 
   // Se for vereador, usar sidebar específico
-  if (user?.role === 'vereador') {
+  if (user.role === 'vereador') {
     return <VereadorSidebar />;
   }
 
   // Se for secretária, usar sidebar específico
-  if (user?.role === 'secretaria') {
+  if (user.role === 'secretaria') {
     return <SecretariaSidebar />;
   }
 
