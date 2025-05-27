@@ -83,6 +83,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         role: 'secretaria'
       };
     }
+    // Verificar credenciais do Tratorista
+    else if (email === 'tratorista@sistrator.com' && password === 'trat123456') {
+      userData = {
+        email: email,
+        name: 'João Silva Santos',
+        role: 'tratorista'
+      };
+    }
     
     if (userData) {
       setUser(userData);

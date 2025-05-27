@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -17,6 +16,8 @@ import Relatorios from "./pages/Relatorios";
 import Documentos from "./pages/Documentos";
 import Configuracoes from "./pages/Configuracoes";
 import NotFound from "./pages/NotFound";
+import RegistrarServicos from "./pages/RegistrarServicos";
+import DiarioTrator from "./pages/DiarioTrator";
 
 const queryClient = new QueryClient();
 
@@ -45,7 +46,7 @@ const App = () => (
             } />
             <Route path="/beneficiarios" element={
               <ProtectedRoute>
-                <RoleBasedRoute allowedRoles={['admin', 'prefeito', 'vereador', 'secretaria']}>
+                <RoleBasedRoute allowedRoles={['admin', 'prefeito', 'vereador', 'secretaria', 'tratorista']}>
                   <Beneficiarios />
                 </RoleBasedRoute>
               </ProtectedRoute>
@@ -78,9 +79,23 @@ const App = () => (
                 </RoleBasedRoute>
               </ProtectedRoute>
             } />
+            <Route path="/registrar-servicos" element={
+              <ProtectedRoute>
+                <RoleBasedRoute allowedRoles={['tratorista']}>
+                  <RegistrarServicos />
+                </RoleBasedRoute>
+              </ProtectedRoute>
+            } />
+            <Route path="/diario-trator" element={
+              <ProtectedRoute>
+                <RoleBasedRoute allowedRoles={['tratorista']}>
+                  <DiarioTrator />
+                </RoleBasedRoute>
+              </ProtectedRoute>
+            } />
             <Route path="/configuracoes" element={
               <ProtectedRoute>
-                <RoleBasedRoute allowedRoles={['admin', 'prefeito', 'vereador', 'secretaria']}>
+                <RoleBasedRoute allowedRoles={['admin', 'prefeito', 'vereador', 'secretaria', 'tratorista']}>
                   <Configuracoes />
                 </RoleBasedRoute>
               </ProtectedRoute>

@@ -1,22 +1,15 @@
-import { useAuth } from "@/contexts/AuthContext";
-import { PrefeitoSidebar } from "./PrefeitoSidebar";
-import { VereadorSidebar } from "./VereadorSidebar";
-import { SecretariaSidebar } from "./SecretariaSidebar";
-import { TratoristasSidebar } from "./TratoristasSidebar";
+
 import { 
-  Tractor, 
   Users, 
-  ClipboardList, 
-  BarChart3, 
+  ClipboardList,
   Settings,
-  Home,
-  Calendar,
-  FileText,
-  LogOut
+  LogOut,
+  Tractor
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Sidebar,
   SidebarContent,
@@ -32,34 +25,19 @@ import {
 
 const menuItems = [
   {
-    title: "Serviços Ativos",
-    url: "/servicos",
-    icon: Tractor,
-  },
-  {
     title: "Beneficiários",
     url: "/beneficiarios",
     icon: Users,
   },
   {
-    title: "Tratoristas",
-    url: "/tratoristas",
+    title: "Registrar Serviços",
+    url: "/registrar-servicos",
     icon: ClipboardList,
   },
   {
-    title: "Agendamentos",
-    url: "/agendamentos",
-    icon: Calendar,
-  },
-  {
-    title: "Relatórios",
-    url: "/relatorios",
-    icon: BarChart3,
-  },
-  {
-    title: "Documentos",
-    url: "/documentos",
-    icon: FileText,
+    title: "Diário do Trator",
+    url: "/diario-trator",
+    icon: Tractor,
   },
 ];
 
@@ -71,42 +49,10 @@ const adminItems = [
   },
 ];
 
-export function AppSidebar() {
+export function TratoristasSidebar() {
   const location = useLocation();
-  const auth = useAuth();
+  const { user, logout } = useAuth();
   const { toast } = useToast();
-
-  // Se ainda está carregando ou não há contexto de auth, não renderizar nada
-  if (!auth || auth.isLoading) {
-    return null;
-  }
-
-  const { user, logout } = auth;
-
-  // Se não há usuário, retornar null
-  if (!user) {
-    return null;
-  }
-
-  // Se for prefeito, usar sidebar específico
-  if (user.role === 'prefeito') {
-    return <PrefeitoSidebar />;
-  }
-
-  // Se for vereador, usar sidebar específico
-  if (user.role === 'vereador') {
-    return <VereadorSidebar />;
-  }
-
-  // Se for secretária, usar sidebar específico
-  if (user.role === 'secretaria') {
-    return <SecretariaSidebar />;
-  }
-
-  // Se for tratorista, usar sidebar específico
-  if (user.role === 'tratorista') {
-    return <TratoristasSidebar />;
-  }
 
   const handleLogout = () => {
     logout();
@@ -125,7 +71,7 @@ export function AppSidebar() {
           </div>
           <div>
             <h2 className="text-xl font-bold text-foreground">Sistrator</h2>
-            <p className="text-sm text-muted-foreground">Secretaria de Agricultura</p>
+            <p className="text-sm text-muted-foreground">Tratorista</p>
           </div>
         </div>
       </SidebarHeader>
@@ -157,7 +103,7 @@ export function AppSidebar() {
 
         <SidebarGroup>
           <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Administração
+            Configurações
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -191,7 +137,7 @@ export function AppSidebar() {
             <p className="text-sm font-medium text-accent-foreground truncate">
               {user?.name}
             </p>
-            <p className="text-xs text-muted-foreground">Acesso total</p>
+            <p className="text-xs text-muted-foreground">Operador de campo</p>
           </div>
         </div>
         

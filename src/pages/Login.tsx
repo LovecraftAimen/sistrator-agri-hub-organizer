@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -135,6 +134,9 @@ const Login = () => {
               </p>
               <p className="font-mono text-xs">
                 secretaria@sistrator.com | sec123456 (Secretária)
+              </p>
+              <p className="font-mono text-xs">
+                tratorista@sistrator.com | trat123456 (Tratorista)
               </p>
             </div>
           </div>
