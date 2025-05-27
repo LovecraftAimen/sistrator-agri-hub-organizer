@@ -1,7 +1,6 @@
 
 import { 
   Users, 
-  Home,
   LogOut,
   Settings
 } from "lucide-react";
@@ -23,11 +22,6 @@ import {
 } from "@/components/ui/sidebar";
 
 const menuItems = [
-  {
-    title: "Dashboard",
-    url: "/",
-    icon: Home,
-  },
   {
     title: "Beneficiários",
     url: "/beneficiarios",

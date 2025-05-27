@@ -22,20 +22,16 @@ interface DiarioTrator {
   id: string;
   data: string;
   trator: string;
-  horasOperacao: number;
   statusEquipamento: 'bom' | 'atencao' | 'problema';
   problemas: string;
   manutencao: string;
-  combustivel: number;
   observacoes: string;
 }
 
 const DiarioTrator = () => {
   const [diarioAtual, setDiarioAtual] = useState<Partial<DiarioTrator>>({
     data: new Date().toISOString().split('T')[0],
-    statusEquipamento: 'bom',
-    combustivel: 0,
-    horasOperacao: 0
+    statusEquipamento: 'bom'
   });
   const [registros, setRegistros] = useState<DiarioTrator[]>([]);
   const { toast } = useToast();
@@ -60,11 +56,9 @@ const DiarioTrator = () => {
       id: Date.now().toString(),
       data: diarioAtual.data!,
       trator: diarioAtual.trator!,
-      horasOperacao: diarioAtual.horasOperacao || 0,
       statusEquipamento: diarioAtual.statusEquipamento as 'bom' | 'atencao' | 'problema',
       problemas: diarioAtual.problemas || '',
       manutencao: diarioAtual.manutencao || '',
-      combustivel: diarioAtual.combustivel || 0,
       observacoes: diarioAtual.observacoes || ''
     };
 
@@ -73,9 +67,7 @@ const DiarioTrator = () => {
     // Resetar formulário
     setDiarioAtual({
       data: new Date().toISOString().split('T')[0],
-      statusEquipamento: 'bom',
-      combustivel: 0,
-      horasOperacao: 0
+      statusEquipamento: 'bom'
     });
 
     toast({
@@ -170,49 +162,23 @@ const DiarioTrator = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="horasOperacao">Horas de Operação</Label>
-                      <Input
-                        id="horasOperacao"
-                        type="number"
-                        min="0"
-                        step="0.5"
-                        value={diarioAtual.horasOperacao}
-                        onChange={(e) => setDiarioAtual({...diarioAtual, horasOperacao: Number(e.target.value)})}
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="combustivel">Combustível (Litros)</Label>
-                      <Input
-                        id="combustivel"
-                        type="number"
-                        min="0"
-                        step="0.1"
-                        value={diarioAtual.combustivel}
-                        onChange={(e) => setDiarioAtual({...diarioAtual, combustivel: Number(e.target.value)})}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="statusEquipamento">Status do Equipamento</Label>
-                      <Select 
-                        value={diarioAtual.statusEquipamento} 
-                        onValueChange={(value: 'bom' | 'atencao' | 'problema') => 
-                          setDiarioAtual({...diarioAtual, statusEquipamento: value})
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="bom">Funcionando bem</SelectItem>
-                          <SelectItem value="atencao">Requer atenção</SelectItem>
-                          <SelectItem value="problema">Com problemas</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="statusEquipamento">Status do Equipamento</Label>
+                    <Select 
+                      value={diarioAtual.statusEquipamento} 
+                      onValueChange={(value: 'bom' | 'atencao' | 'problema') => 
+                        setDiarioAtual({...diarioAtual, statusEquipamento: value})
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="bom">Funcionando bem</SelectItem>
+                        <SelectItem value="atencao">Requer atenção</SelectItem>
+                        <SelectItem value="problema">Com problemas</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div className="space-y-2">
@@ -281,17 +247,6 @@ const DiarioTrator = () => {
                                            registro.statusEquipamento === 'atencao' ? 'secondary' : 'destructive'}>
                               {getStatusLabel(registro.statusEquipamento)}
                             </Badge>
-                          </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                          <div>
-                            <span className="text-muted-foreground">Horas:</span>
-                            <p className="font-medium">{registro.horasOperacao}h</p>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Combustível:</span>
-                            <p className="font-medium">{registro.combustivel}L</p>
                           </div>
                         </div>
                         

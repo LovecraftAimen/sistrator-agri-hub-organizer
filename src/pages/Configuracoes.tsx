@@ -19,8 +19,8 @@ import {
 const Configuracoes = () => {
   const { user } = useAuth();
 
-  // Para prefeito, vereador, secretaria e tratorista, mostrar apenas configurações limitadas
-  if (user?.role === 'prefeito' || user?.role === 'vereador' || user?.role === 'secretaria' || user?.role === 'tratorista') {
+  // Para todos os usuários exceto admin, mostrar apenas configurações limitadas
+  if (user?.role !== 'admin') {
     return (
       <SidebarProvider>
         <div className="min-h-screen flex w-full bg-background">

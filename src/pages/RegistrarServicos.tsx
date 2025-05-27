@@ -15,7 +15,9 @@ import {
   MapPin, 
   Plus,
   Wifi,
-  WifiOff
+  WifiOff,
+  Play,
+  Square
 } from "lucide-react";
 
 interface ServicoRegistro {
@@ -126,6 +128,15 @@ const RegistrarServicos = () => {
   };
 
   const handleIniciarServico = () => {
+    if (!servicoAtual.beneficiarioNome) {
+      toast({
+        title: "Erro",
+        description: "Selecione um beneficiário antes de iniciar o serviço",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const agora = new Date();
     const horaAtual = agora.toTimeString().slice(0, 5);
     
@@ -235,6 +246,7 @@ const RegistrarServicos = () => {
                         type="date"
                         value={servicoAtual.data}
                         onChange={(e) => setServicoAtual({...servicoAtual, data: e.target.value})}
+                        disabled={!!servicoAtual.horaEntrada}
                       />
                     </div>
                     
@@ -245,6 +257,7 @@ const RegistrarServicos = () => {
                         onValueChange={(value: 'aracao' | 'gradagem') => 
                           setServicoAtual({...servicoAtual, tipoServico: value})
                         }
+                        disabled={!!servicoAtual.horaEntrada}
                       >
                         <SelectTrigger>
                           <SelectValue />
@@ -262,6 +275,7 @@ const RegistrarServicos = () => {
                     <Select 
                       value={servicoAtual.beneficiarioNome} 
                       onValueChange={(value) => setServicoAtual({...servicoAtual, beneficiarioNome: value})}
+                      disabled={!!servicoAtual.horaEntrada}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o beneficiário" />
@@ -276,30 +290,30 @@ const RegistrarServicos = () => {
                     </Select>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="horaEntrada">Hora Entrada</Label>
-                      <Input
-                        id="horaEntrada"
-                        type="time"
-                        value={servicoAtual.horaEntrada || ''}
-                        onChange={(e) => setServicoAtual({...servicoAtual, horaEntrada: e.target.value})}
-                        readOnly={servicoAtual.status === 'em_andamento'}
-                      />
+                  {servicoAtual.horaEntrada && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="horaEntrada">Hora Entrada</Label>
+                        <Input
+                          id="horaEntrada"
+                          type="time"
+                          value={servicoAtual.horaEntrada || ''}
+                          readOnly
+                          className="bg-muted"
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="horaSaida">Hora Saída</Label>
+                        <Input
+                          id="horaSaida"
+                          value="Automático ao finalizar"
+                          readOnly
+                          className="bg-muted text-muted-foreground"
+                        />
+                      </div>
                     </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="horaSaida">Hora Saída</Label>
-                      <Input
-                        id="horaSaida"
-                        type="time"
-                        value={servicoAtual.horaSaida || ''}
-                        onChange={(e) => setServicoAtual({...servicoAtual, horaSaida: e.target.value})}
-                        placeholder="Será preenchido automaticamente"
-                        readOnly
-                      />
-                    </div>
-                  </div>
+                  )}
 
                   <div className="space-y-2">
                     <Label htmlFor="observacoes">Observações</Label>
@@ -314,12 +328,12 @@ const RegistrarServicos = () => {
                   <div className="flex gap-3 pt-4">
                     {!servicoAtual.horaEntrada ? (
                       <Button onClick={handleIniciarServico} className="flex items-center gap-2">
-                        <Clock className="w-4 h-4" />
+                        <Play className="w-4 h-4" />
                         Iniciar Serviço
                       </Button>
                     ) : (
                       <Button onClick={handleFinalizarServico} className="flex items-center gap-2">
-                        <Save className="w-4 h-4" />
+                        <Square className="w-4 h-4" />
                         Finalizar Serviço
                       </Button>
                     )}

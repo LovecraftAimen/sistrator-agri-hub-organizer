@@ -1,6 +1,5 @@
 
 import { 
-  Users, 
   ClipboardList,
   Settings,
   LogOut,
@@ -24,11 +23,6 @@ import {
 } from "@/components/ui/sidebar";
 
 const menuItems = [
-  {
-    title: "Beneficiários",
-    url: "/beneficiarios",
-    icon: Users,
-  },
   {
     title: "Registrar Serviços",
     url: "/registrar-servicos",
