@@ -51,7 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     let userData: User | null = null;
     
-    // Verificar credenciais do Secretário
+    // Verificar credenciais do Admin (Secretário)
     if (email === 'secagri@sistrator.com' && password === 'sis123456') {
       userData = {
         email: email,
@@ -73,6 +73,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email: email,
         name: 'Vereador Municipal',
         role: 'vereador'
+      };
+    }
+    // Verificar credenciais da Secretária
+    else if (email === 'secretaria@sistrator.com' && password === 'sec123456') {
+      userData = {
+        email: email,
+        name: 'Secretária da Agricultura',
+        role: 'secretaria'
       };
     }
     

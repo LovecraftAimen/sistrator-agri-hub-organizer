@@ -1,21 +1,13 @@
-import { useAuth } from "@/contexts/AuthContext";
-import { PrefeitoSidebar } from "./PrefeitoSidebar";
-import { VereadorSidebar } from "./VereadorSidebar";
-import { SecretariaSidebar } from "./SecretariaSidebar";
+
 import { 
-  Tractor, 
   Users, 
-  ClipboardList, 
-  BarChart3, 
   Settings,
-  Home,
-  Calendar,
-  FileText,
   LogOut
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Sidebar,
   SidebarContent,
@@ -31,39 +23,9 @@ import {
 
 const menuItems = [
   {
-    title: "Dashboard",
-    url: "/",
-    icon: Home,
-  },
-  {
-    title: "Serviços Ativos",
-    url: "/servicos",
-    icon: Tractor,
-  },
-  {
     title: "Beneficiários",
     url: "/beneficiarios",
     icon: Users,
-  },
-  {
-    title: "Tratoristas",
-    url: "/tratoristas",
-    icon: ClipboardList,
-  },
-  {
-    title: "Agendamentos",
-    url: "/agendamentos",
-    icon: Calendar,
-  },
-  {
-    title: "Relatórios",
-    url: "/relatorios",
-    icon: BarChart3,
-  },
-  {
-    title: "Documentos",
-    url: "/documentos",
-    icon: FileText,
   },
 ];
 
@@ -75,32 +37,10 @@ const adminItems = [
   },
 ];
 
-export function AppSidebar() {
+export function SecretariaSidebar() {
   const location = useLocation();
-  const auth = useAuth();
+  const { user, logout } = useAuth();
   const { toast } = useToast();
-
-  // Adicionar verificação de segurança
-  if (!auth || auth.isLoading) {
-    return null;
-  }
-
-  const { user, logout } = auth;
-
-  // Se for prefeito, usar sidebar específico
-  if (user?.role === 'prefeito') {
-    return <PrefeitoSidebar />;
-  }
-
-  // Se for vereador, usar sidebar específico
-  if (user?.role === 'vereador') {
-    return <VereadorSidebar />;
-  }
-
-  // Se for secretária, usar sidebar específico
-  if (user?.role === 'secretaria') {
-    return <SecretariaSidebar />;
-  }
 
   const handleLogout = () => {
     logout();
@@ -115,11 +55,11 @@ export function AppSidebar() {
       <SidebarHeader className="p-6">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg gradient-bg flex items-center justify-center">
-            <Tractor className="w-6 h-6 text-white" />
+            <Users className="w-6 h-6 text-white" />
           </div>
           <div>
             <h2 className="text-xl font-bold text-foreground">Sistrator</h2>
-            <p className="text-sm text-muted-foreground">Secretaria de Agricultura</p>
+            <p className="text-sm text-muted-foreground">Secretária da Agricultura</p>
           </div>
         </div>
       </SidebarHeader>
@@ -151,7 +91,7 @@ export function AppSidebar() {
 
         <SidebarGroup>
           <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Administração
+            Configurações
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -185,7 +125,7 @@ export function AppSidebar() {
             <p className="text-sm font-medium text-accent-foreground truncate">
               {user?.name}
             </p>
-            <p className="text-xs text-muted-foreground">Acesso total</p>
+            <p className="text-xs text-muted-foreground">Cadastro de beneficiários</p>
           </div>
         </div>
         

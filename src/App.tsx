@@ -31,7 +31,9 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/" element={
               <ProtectedRoute>
-                <Index />
+                <RoleBasedRoute allowedRoles={['admin']}>
+                  <Index />
+                </RoleBasedRoute>
               </ProtectedRoute>
             } />
             <Route path="/servicos" element={
@@ -43,7 +45,7 @@ const App = () => (
             } />
             <Route path="/beneficiarios" element={
               <ProtectedRoute>
-                <RoleBasedRoute allowedRoles={['admin', 'prefeito', 'vereador']}>
+                <RoleBasedRoute allowedRoles={['admin', 'prefeito', 'vereador', 'secretaria']}>
                   <Beneficiarios />
                 </RoleBasedRoute>
               </ProtectedRoute>
@@ -78,7 +80,7 @@ const App = () => (
             } />
             <Route path="/configuracoes" element={
               <ProtectedRoute>
-                <RoleBasedRoute allowedRoles={['admin', 'prefeito', 'vereador']}>
+                <RoleBasedRoute allowedRoles={['admin', 'prefeito', 'vereador', 'secretaria']}>
                   <Configuracoes />
                 </RoleBasedRoute>
               </ProtectedRoute>
