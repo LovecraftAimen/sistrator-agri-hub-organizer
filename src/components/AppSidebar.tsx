@@ -33,6 +33,11 @@ import {
 
 const menuItems = [
   {
+    title: "Dashboard",
+    url: "/",
+    icon: Home,
+  },
+  {
     title: "Serviços Ativos",
     url: "/servicos",
     icon: Tractor,
