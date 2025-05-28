@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Tractor, Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
@@ -15,6 +17,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { login, isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   if (isAuthenticated) {
     return <Navigate to="/" replace />;
@@ -49,16 +52,18 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50 dark:from-green-950 dark:to-blue-950 p-4">
-      <Card className="w-full max-w-md shadow-xl">
+    <div className={`min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50 dark:from-green-950 dark:to-blue-950 ${isMobile ? 'p-3' : 'p-4'}`}>
+      <Card className={`w-full ${isMobile ? 'max-w-sm' : 'max-w-md'} shadow-xl`}>
         <CardHeader className="text-center">
-          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center mb-4">
-            <Tractor className="w-8 h-8 text-white" />
+          <div className={`mx-auto ${isMobile ? 'w-12 h-12' : 'w-16 h-16'} bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center mb-4`}>
+            <Tractor className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} text-white`} />
           </div>
-          <CardTitle className="text-2xl font-bold">Sistrator</CardTitle>
-          <CardDescription>
-            Sistema de Gestão de Mecanização Agrícola
-          </CardDescription>
+          <CardTitle className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold`}>Sistrator</CardTitle>
+          {!isMobile && (
+            <CardDescription>
+              Sistema de Gestão de Mecanização Agrícola
+            </CardDescription>
+          )}
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -120,26 +125,28 @@ const Login = () => {
             </Button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-muted-foreground">
-            <p>Credenciais de demonstração:</p>
-            <div className="space-y-1 mt-2">
-              <p className="font-mono text-xs">
-                secagri@sistrator.com | sis123456 (Admin)
-              </p>
-              <p className="font-mono text-xs">
-                prefeito@sistrator.com | pref123456 (Prefeito)
-              </p>
-              <p className="font-mono text-xs">
-                vereador@sistrator.com | ver123456 (Vereador)
-              </p>
-              <p className="font-mono text-xs">
-                secretaria@sistrator.com | sec123456 (Secretária)
-              </p>
-              <p className="font-mono text-xs">
-                tratorista@sistrator.com | trat123456 (Tratorista)
-              </p>
+          {!isMobile && (
+            <div className="mt-6 text-center text-sm text-muted-foreground">
+              <p>Credenciais de demonstração:</p>
+              <div className="space-y-1 mt-2">
+                <p className="font-mono text-xs">
+                  secagri@sistrator.com | sis123456 (Admin)
+                </p>
+                <p className="font-mono text-xs">
+                  prefeito@sistrator.com | pref123456 (Prefeito)
+                </p>
+                <p className="font-mono text-xs">
+                  vereador@sistrator.com | ver123456 (Vereador)
+                </p>
+                <p className="font-mono text-xs">
+                  secretaria@sistrator.com | sec123456 (Secretária)
+                </p>
+                <p className="font-mono text-xs">
+                  tratorista@sistrator.com | trat123456 (Tratorista)
+                </p>
+              </div>
             </div>
-          </div>
+          )}
         </CardContent>
       </Card>
     </div>
