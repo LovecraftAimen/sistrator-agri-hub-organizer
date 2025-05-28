@@ -1,13 +1,13 @@
-
 import { useState } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, Edit, Eye } from "lucide-react";
+import { Plus, Search, Edit, Eye, Menu } from "lucide-react";
 import { TratoristaForm } from "@/components/TratoristaForm";
 import { TratoristasList } from "@/components/TratoristasList";
 import { TratoristaDetails } from "@/components/TratoristaDetails";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export interface Tratorista {
   id: string;
@@ -31,6 +31,8 @@ const Tratoristas = () => {
   const [showDetails, setShowDetails] = useState(false);
   const [selectedTratorista, setSelectedTratorista] = useState<Tratorista | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const isMobile = useIsMobile();
+
   const [tratoristas, setTratoristas] = useState<Tratorista[]>([
     {
       id: "1",
@@ -108,15 +110,19 @@ const Tratoristas = () => {
           <AppSidebar />
           <main className="flex-1 overflow-hidden">
             <div className="border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-              <div className="flex h-16 items-center gap-4 px-6">
-                <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
-                <div className="flex-1">
-                  <h1 className="text-xl font-semibold text-foreground">
+              <div className={`flex items-center gap-4 ${isMobile ? 'h-14 px-4' : 'h-16 px-6'}`}>
+                <SidebarTrigger className="text-muted-foreground hover:text-foreground">
+                  <Menu className={isMobile ? 'w-5 h-5' : 'w-6 h-6'} />
+                </SidebarTrigger>
+                <div className="flex-1 min-w-0">
+                  <h1 className={`${isMobile ? 'text-base' : 'text-xl'} font-semibold text-foreground truncate`}>
                     {selectedTratorista ? "Editar Tratorista" : "Cadastrar Tratorista"}
                   </h1>
-                  <p className="text-sm text-muted-foreground">
-                    {selectedTratorista ? "Atualize as informações do operador" : "Cadastre um novo operador de trator"}
-                  </p>
+                  {!isMobile && (
+                    <p className="text-sm text-muted-foreground">
+                      {selectedTratorista ? "Atualize as informações do operador" : "Cadastre um novo operador de trator"}
+                    </p>
+                  )}
                 </div>
                 <Button 
                   variant="outline" 
@@ -124,12 +130,13 @@ const Tratoristas = () => {
                     setShowForm(false);
                     setSelectedTratorista(null);
                   }}
+                  size={isMobile ? "sm" : "default"}
                 >
                   Voltar
                 </Button>
               </div>
             </div>
-            <div className="flex-1 overflow-auto p-6">
+            <div className={`flex-1 overflow-auto ${isMobile ? 'p-3' : 'p-6'}`}>
               <TratoristaForm 
                 tratorista={selectedTratorista}
                 onSubmit={selectedTratorista ? handleEditTratorista : handleAddTratorista}
@@ -152,15 +159,19 @@ const Tratoristas = () => {
           <AppSidebar />
           <main className="flex-1 overflow-hidden">
             <div className="border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-              <div className="flex h-16 items-center gap-4 px-6">
-                <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
-                <div className="flex-1">
-                  <h1 className="text-xl font-semibold text-foreground">
+              <div className={`flex items-center gap-4 ${isMobile ? 'h-14 px-4' : 'h-16 px-6'}`}>
+                <SidebarTrigger className="text-muted-foreground hover:text-foreground">
+                  <Menu className={isMobile ? 'w-5 h-5' : 'w-6 h-6'} />
+                </SidebarTrigger>
+                <div className="flex-1 min-w-0">
+                  <h1 className={`${isMobile ? 'text-base' : 'text-xl'} font-semibold text-foreground truncate`}>
                     Detalhes do Tratorista
                   </h1>
-                  <p className="text-sm text-muted-foreground">
-                    Informações completas do operador
-                  </p>
+                  {!isMobile && (
+                    <p className="text-sm text-muted-foreground">
+                      Informações completas do operador
+                    </p>
+                  )}
                 </div>
                 <Button 
                   variant="outline" 
@@ -168,12 +179,13 @@ const Tratoristas = () => {
                     setShowDetails(false);
                     setSelectedTratorista(null);
                   }}
+                  size={isMobile ? "sm" : "default"}
                 >
                   Voltar
                 </Button>
               </div>
             </div>
-            <div className="flex-1 overflow-auto p-6">
+            <div className={`flex-1 overflow-auto ${isMobile ? 'p-3' : 'p-6'}`}>
               <TratoristaDetails 
                 tratorista={selectedTratorista}
                 onEdit={() => {
@@ -194,32 +206,36 @@ const Tratoristas = () => {
         <AppSidebar />
         <main className="flex-1 overflow-hidden">
           <div className="border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="flex h-16 items-center gap-4 px-6">
-              <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
-              <div className="flex-1">
-                <h1 className="text-xl font-semibold text-foreground">
+            <div className={`flex items-center gap-4 ${isMobile ? 'h-14 px-4' : 'h-16 px-6'}`}>
+              <SidebarTrigger className="text-muted-foreground hover:text-foreground">
+                <Menu className={isMobile ? 'w-5 h-5' : 'w-6 h-6'} />
+              </SidebarTrigger>
+              <div className="flex-1 min-w-0">
+                <h1 className={`${isMobile ? 'text-base' : 'text-xl'} font-semibold text-foreground truncate`}>
                   Gestão de Tratoristas
                 </h1>
-                <p className="text-sm text-muted-foreground">
-                  Cadastro e controle dos operadores
-                </p>
+                {!isMobile && (
+                  <p className="text-sm text-muted-foreground">
+                    Cadastro e controle dos operadores
+                  </p>
+                )}
               </div>
-              <Button onClick={() => setShowForm(true)} className="gap-2">
-                <Plus className="w-4 h-4" />
-                Novo Tratorista
+              <Button onClick={() => setShowForm(true)} className="gap-2" size={isMobile ? "sm" : "default"}>
+                <Plus className={isMobile ? 'w-3 h-3' : 'w-4 h-4'} />
+                {isMobile ? 'Novo' : 'Novo Tratorista'}
               </Button>
             </div>
           </div>
-          <div className="flex-1 overflow-auto p-6">
-            <div className="space-y-6">
+          <div className={`flex-1 overflow-auto ${isMobile ? 'p-3' : 'p-6'}`}>
+            <div className={`space-y-${isMobile ? '4' : '6'}`}>
               <div className="flex gap-4">
                 <div className="relative flex-1 max-w-sm">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                  <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground ${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
                   <Input
-                    placeholder="Buscar por nome, CPF ou telefone..."
+                    placeholder={isMobile ? "Buscar..." : "Buscar por nome, CPF ou telefone..."}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
+                    className={isMobile ? 'pl-8 text-sm' : 'pl-10'}
                   />
                 </div>
               </div>
