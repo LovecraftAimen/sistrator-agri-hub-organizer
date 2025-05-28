@@ -1,58 +1,94 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from "recharts";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
-const serviceData = [
-  { month: "Jan", aracoes: 45, gradagens: 32, total: 77 },
-  { month: "Fev", aracoes: 52, gradagens: 38, total: 90 },
-  { month: "Mar", aracoes: 48, gradagens: 42, total: 90 },
-  { month: "Abr", aracoes: 61, gradagens: 45, total: 106 },
-  { month: "Mai", aracoes: 55, gradagens: 49, total: 104 },
-  { month: "Jun", aracoes: 67, gradagens: 52, total: 119 },
-];
+// Dados simulados com datas infinitas
+const generateServiceData = () => {
+  const data = [];
+  const currentDate = new Date();
+  
+  // Gerar dados para os últimos 12 meses
+  for (let i = 11; i >= 0; i--) {
+    const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+    const month = format(date, "MMM", { locale: ptBR });
+    
+    data.push({
+      month,
+      date: date.toISOString(),
+      aracoes: Math.floor(Math.random() * 30) + 30,
+      gradagens: Math.floor(Math.random() * 25) + 25,
+      total: 0
+    });
+  }
+  
+  // Calcular totais
+  data.forEach(item => {
+    item.total = item.aracoes + item.gradagens;
+  });
+  
+  return data;
+};
+
+const serviceData = generateServiceData();
 
 export function ServiceChart() {
+  const isMobile = useIsMobile();
+
   return (
-    <Card className="col-span-2 card-hover">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+    <Card className="w-full card-hover">
+      <CardHeader className={isMobile ? 'p-4 pb-2' : 'p-6 pb-4'}>
+        <CardTitle className={`flex items-center gap-2 ${isMobile ? 'text-lg' : 'text-xl'}`}>
           <span>Serviços por Mês</span>
         </CardTitle>
-        <CardDescription>
+        <CardDescription className={isMobile ? 'text-xs' : 'text-sm'}>
           Comparativo de arações e gradagens realizadas
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={serviceData}>
-            <CartesianGrid strokeDasharray="3 3" />
+      <CardContent className={isMobile ? 'p-4 pt-0' : 'p-6 pt-0'}>
+        <ResponsiveContainer width="100%" height={isMobile ? 250 : 300}>
+          <BarChart data={serviceData} margin={isMobile ? { top: 5, right: 5, left: 5, bottom: 5 } : undefined}>
+            <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
             <XAxis 
               dataKey="month" 
-              tick={{ fontSize: 12 }}
+              tick={{ fontSize: isMobile ? 10 : 12 }}
               axisLine={false}
+              interval={isMobile ? 1 : 0}
             />
             <YAxis 
-              tick={{ fontSize: 12 }}
+              tick={{ fontSize: isMobile ? 10 : 12 }}
               axisLine={false}
+              width={isMobile ? 30 : 40}
             />
             <Tooltip 
               contentStyle={{
                 backgroundColor: 'hsl(var(--card))',
                 border: '1px solid hsl(var(--border))',
-                borderRadius: '6px'
+                borderRadius: '6px',
+                fontSize: isMobile ? '12px' : '14px'
+              }}
+              formatter={(value, name) => [value, name === 'aracoes' ? 'Arações' : 'Gradagens']}
+              labelFormatter={(label, payload) => {
+                if (payload && payload[0]) {
+                  const date = new Date(payload[0].payload.date);
+                  return format(date, "MMMM 'de' yyyy", { locale: ptBR });
+                }
+                return label;
               }}
             />
             <Bar 
               dataKey="aracoes" 
               fill="hsl(142 76% 36%)" 
               name="Arações"
-              radius={[4, 4, 0, 0]}
+              radius={[2, 2, 0, 0]}
             />
             <Bar 
               dataKey="gradagens" 
               fill="hsl(142 76% 60%)" 
               name="Gradagens"
-              radius={[4, 4, 0, 0]}
+              radius={[2, 2, 0, 0]}
             />
           </BarChart>
         </ResponsiveContainer>

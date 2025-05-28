@@ -18,6 +18,7 @@ import {
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Sidebar,
   SidebarContent,
@@ -80,6 +81,7 @@ const adminItems = [
 export function AppSidebar() {
   const location = useLocation();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   // Use a try-catch to handle auth context safely
   let user = null;
@@ -130,13 +132,13 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar className="border-r border-border/40">
-      <SidebarHeader className="p-6">
+    <Sidebar className="border-r border-border/40" variant={isMobile ? "floating" : "sidebar"}>
+      <SidebarHeader className={`${isMobile ? 'p-4' : 'p-6'}`}>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg gradient-bg flex items-center justify-center">
-            <Tractor className="w-6 h-6 text-white" />
+          <div className={`${isMobile ? 'w-8 h-8' : 'w-10 h-10'} rounded-lg gradient-bg flex items-center justify-center`}>
+            <Tractor className={`${isMobile ? 'w-4 h-4' : 'w-6 h-6'} text-white`} />
           </div>
-          <div>
+          <div className={isMobile ? 'hidden' : 'block'}>
             <h2 className="text-xl font-bold text-foreground">Sistrator</h2>
             <p className="text-sm text-muted-foreground">Secretaria de Agricultura</p>
           </div>
@@ -145,7 +147,7 @@ export function AppSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+          <SidebarGroupLabel className={`text-xs font-semibold text-muted-foreground uppercase tracking-wider ${isMobile ? 'hidden' : 'block'}`}>
             Navegação Principal
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -157,9 +159,9 @@ export function AppSidebar() {
                     isActive={location.pathname === item.url}
                     className="hover:bg-accent hover:text-accent-foreground transition-colors"
                   >
-                    <Link to={item.url} className="flex items-center gap-3 px-3 py-2">
-                      <item.icon className="w-5 h-5" />
-                      <span className="font-medium">{item.title}</span>
+                    <Link to={item.url} className={`flex items-center gap-3 ${isMobile ? 'px-2 py-3' : 'px-3 py-2'}`}>
+                      <item.icon className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
+                      <span className={`font-medium ${isMobile ? 'text-sm' : ''}`}>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -169,7 +171,7 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+          <SidebarGroupLabel className={`text-xs font-semibold text-muted-foreground uppercase tracking-wider ${isMobile ? 'hidden' : 'block'}`}>
             Administração
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -181,9 +183,9 @@ export function AppSidebar() {
                     isActive={location.pathname === item.url}
                     className="hover:bg-accent hover:text-accent-foreground transition-colors"
                   >
-                    <Link to={item.url} className="flex items-center gap-3 px-3 py-2">
-                      <item.icon className="w-5 h-5" />
-                      <span className="font-medium">{item.title}</span>
+                    <Link to={item.url} className={`flex items-center gap-3 ${isMobile ? 'px-2 py-3' : 'px-3 py-2'}`}>
+                      <item.icon className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
+                      <span className={`font-medium ${isMobile ? 'text-sm' : ''}`}>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -193,29 +195,29 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-4 space-y-2">
-        <div className="flex items-center gap-3 p-3 rounded-lg bg-accent">
-          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-            <span className="text-xs font-semibold text-primary-foreground">
+      <SidebarFooter className={`${isMobile ? 'p-3' : 'p-4'} space-y-2`}>
+        <div className={`flex items-center gap-3 ${isMobile ? 'p-2' : 'p-3'} rounded-lg bg-accent`}>
+          <div className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} rounded-full bg-primary flex items-center justify-center`}>
+            <span className={`${isMobile ? 'text-xs' : 'text-xs'} font-semibold text-primary-foreground`}>
               {user?.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
             </span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-accent-foreground truncate">
+            <p className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-accent-foreground truncate`}>
               {user?.name}
             </p>
-            <p className="text-xs text-muted-foreground">Acesso total</p>
+            <p className={`${isMobile ? 'text-xs' : 'text-xs'} text-muted-foreground`}>Acesso total</p>
           </div>
         </div>
         
         <Button 
           variant="outline" 
-          size="sm" 
+          size={isMobile ? "sm" : "sm"}
           onClick={handleLogout}
           className="w-full justify-start"
         >
-          <LogOut className="w-4 h-4 mr-2" />
-          Sair
+          <LogOut className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} mr-2`} />
+          <span className={isMobile ? 'text-xs' : 'text-sm'}>Sair</span>
         </Button>
       </SidebarFooter>
     </Sidebar>
