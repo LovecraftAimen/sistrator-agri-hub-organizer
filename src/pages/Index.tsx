@@ -31,7 +31,7 @@ const Index = () => {
                 <Menu className={isMobile ? 'w-5 h-5' : 'w-6 h-6'} />
               </SidebarTrigger>
               <div className="flex-1 min-w-0">
-                <h1 className={`${isMobile ? 'text-lg' : 'text-xl'} font-semibold text-foreground truncate`}>
+                <h1 className={`${isMobile ? 'text-base' : 'text-xl'} font-semibold text-foreground truncate`}>
                   Dashboard Principal
                 </h1>
                 {!isMobile && (
@@ -66,10 +66,10 @@ const Index = () => {
           </div>
 
           {/* Mobile-optimized Content */}
-          <div className={`flex-1 overflow-auto ${isMobile ? 'p-4' : 'p-6'}`}>
+          <div className={`overflow-auto ${isMobile ? 'p-3' : 'p-6'}`}>
             <div className={`space-y-${isMobile ? '4' : '6'} animate-fade-in`}>
               {/* Mobile-first Metrics Grid */}
-              <div className={`grid gap-4 ${isMobile ? 'grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-4'}`}>
+              <div className={`grid gap-3 ${isMobile ? 'grid-cols-1' : 'md:grid-cols-2 lg:grid-cols-4'}`}>
                 <MetricCard
                   title="Serviços Hoje"
                   value="12"
@@ -105,27 +105,27 @@ const Index = () => {
               </div>
 
               {/* Mobile-optimized Charts and Tables Grid */}
-              <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'lg:grid-cols-4'}`}>
-                <div className={isMobile ? 'col-span-1' : 'col-span-2'}>
+              <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'lg:grid-cols-2'}`}>
+                <div className="w-full">
                   <ServiceChart />
                 </div>
-                <div className={isMobile ? 'col-span-1' : 'col-span-2'}>
+                <div className="w-full">
                   <ActiveServicesTable />
                 </div>
               </div>
 
               {/* Mobile-optimized Quick Stats */}
-              <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
-                <div className={`${isMobile ? 'p-4' : 'p-6'} border border-border rounded-lg bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 card-hover`}>
+              <div className={`grid gap-3 ${isMobile ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
+                <div className={`${isMobile ? 'p-3' : 'p-6'} border border-border rounded-lg bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 card-hover`}>
                   <div className="flex items-center gap-3">
-                    <div className={`${isMobile ? 'w-10 h-10' : 'w-12 h-12'} rounded-full bg-green-500 flex items-center justify-center`}>
-                      <Tractor className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6'} text-white`} />
+                    <div className={`${isMobile ? 'w-8 h-8' : 'w-12 h-12'} rounded-full bg-green-500 flex items-center justify-center flex-shrink-0`}>
+                      <Tractor className={`${isMobile ? 'w-4 h-4' : 'w-6 h-6'} text-white`} />
                     </div>
-                    <div>
-                      <h3 className={`${isMobile ? 'text-sm' : 'font-semibold'} text-green-900 dark:text-green-100`}>
+                    <div className="min-w-0">
+                      <h3 className={`${isMobile ? 'text-sm' : 'text-base'} font-semibold text-green-900 dark:text-green-100`}>
                         Equipamentos Ativos
                       </h3>
-                      <p className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-green-800 dark:text-green-200`}>
+                      <p className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold text-green-800 dark:text-green-200`}>
                         8/10
                       </p>
                       <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-green-600 dark:text-green-400`}>
@@ -135,16 +135,16 @@ const Index = () => {
                   </div>
                 </div>
 
-                <div className={`${isMobile ? 'p-4' : 'p-6'} border border-border rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 card-hover`}>
+                <div className={`${isMobile ? 'p-3' : 'p-6'} border border-border rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 card-hover`}>
                   <div className="flex items-center gap-3">
-                    <div className={`${isMobile ? 'w-10 h-10' : 'w-12 h-12'} rounded-full bg-blue-500 flex items-center justify-center`}>
-                      <Users className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6'} text-white`} />
+                    <div className={`${isMobile ? 'w-8 h-8' : 'w-12 h-12'} rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0`}>
+                      <Users className={`${isMobile ? 'w-4 h-4' : 'w-6 h-6'} text-white`} />
                     </div>
-                    <div>
-                      <h3 className={`${isMobile ? 'text-sm' : 'font-semibold'} text-blue-900 dark:text-blue-100`}>
+                    <div className="min-w-0">
+                      <h3 className={`${isMobile ? 'text-sm' : 'text-base'} font-semibold text-blue-900 dark:text-blue-100`}>
                         Tratoristas Disponíveis
                       </h3>
-                      <p className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-blue-800 dark:text-blue-200`}>
+                      <p className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold text-blue-800 dark:text-blue-200`}>
                         6/8
                       </p>
                       <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-blue-600 dark:text-blue-400`}>
@@ -154,16 +154,16 @@ const Index = () => {
                   </div>
                 </div>
 
-                <div className={`${isMobile ? 'p-4' : 'p-6'} border border-border rounded-lg bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950 dark:to-amber-900 card-hover`}>
+                <div className={`${isMobile ? 'p-3' : 'p-6'} border border-border rounded-lg bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950 dark:to-amber-900 card-hover`}>
                   <div className="flex items-center gap-3">
-                    <div className={`${isMobile ? 'w-10 h-10' : 'w-12 h-12'} rounded-full bg-amber-500 flex items-center justify-center`}>
-                      <Calendar className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6'} text-white`} />
+                    <div className={`${isMobile ? 'w-8 h-8' : 'w-12 h-12'} rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0`}>
+                      <Calendar className={`${isMobile ? 'w-4 h-4' : 'w-6 h-6'} text-white`} />
                     </div>
-                    <div>
-                      <h3 className={`${isMobile ? 'text-sm' : 'font-semibold'} text-amber-900 dark:text-amber-100`}>
+                    <div className="min-w-0">
+                      <h3 className={`${isMobile ? 'text-sm' : 'text-base'} font-semibold text-amber-900 dark:text-amber-100`}>
                         Taxa de Conclusão
                       </h3>
-                      <p className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-amber-800 dark:text-amber-200`}>
+                      <p className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold text-amber-800 dark:text-amber-200`}>
                         94%
                       </p>
                       <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-amber-600 dark:text-amber-400`}>

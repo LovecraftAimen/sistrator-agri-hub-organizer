@@ -91,10 +91,6 @@
 
   body {
     @apply bg-background text-foreground;
-  }
-
-  /* Mobile optimization */
-  html {
     -webkit-text-size-adjust: 100%;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -109,6 +105,17 @@
   .overflow-auto {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
+  }
+
+  /* Prevent horizontal scroll */
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  /* Mobile viewport optimization */
+  * {
+    box-sizing: border-box;
   }
 }
 
@@ -142,7 +149,7 @@
 
   /* Mobile-first responsive utilities */
   .mobile-padding {
-    @apply px-4 py-3;
+    @apply px-3 py-2;
   }
 
   .mobile-text {
@@ -161,6 +168,13 @@
 
   .safe-area-bottom {
     padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Prevent content overflow */
+  .prevent-overflow {
+    overflow-x: hidden;
+    word-wrap: break-word;
+    hyphens: auto;
   }
 }
 
@@ -210,13 +224,34 @@
 
   /* Improved text readability on mobile */
   body {
-    @apply text-base leading-relaxed;
+    @apply text-sm leading-relaxed;
   }
 
   /* Better form inputs on mobile */
   input, textarea, select {
     @apply text-base;
     font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  /* Grid improvements for mobile */
+  .grid {
+    width: 100%;
+  }
+
+  /* Responsive container */
+  .container {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
 }
 
