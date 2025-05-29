@@ -1,14 +1,18 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { User, Session } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
 
-interface User {
+interface UserProfile {
+  id: string;
   email: string;
   name: string;
-  role: string;
+  role: 'admin' | 'prefeito' | 'vereador' | 'secretaria' | 'tratorista';
 }
 
 interface AuthContextType {
-  user: User | null;
+  user: UserProfile | null;
+  session: Session | null;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
@@ -26,93 +30,104 @@ export const useAuth = () => {
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Verificar se existe usuário logado no localStorage
-    const savedUser = localStorage.getItem('sistrator_user');
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser));
-      } catch (error) {
-        console.error('Error parsing saved user:', error);
-        localStorage.removeItem('sistrator_user');
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth event:', event, session);
+        setSession(session);
+        
+        if (session?.user) {
+          // Fetch user profile
+          setTimeout(async () => {
+            try {
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .single();
+              
+              if (profile) {
+                setUser({
+                  id: profile.id,
+                  email: profile.email,
+                  name: profile.name,
+                  role: profile.role
+                });
+              }
+            } catch (error) {
+              console.error('Error fetching user profile:', error);
+            }
+          }, 0);
+        } else {
+          setUser(null);
+        }
+        
+        setIsLoading(false);
       }
-    }
-    setIsLoading(false);
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session:', session);
+      setSession(session);
+      if (!session) {
+        setIsLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     
-    // Simular delay de autenticação
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    let userData: User | null = null;
-    
-    // Verificar credenciais do Admin (Secretário)
-    if (email === 'secagri@sistrator.com' && password === 'sis123456') {
-      userData = {
-        email: email,
-        name: 'Secretário de Agricultura',
-        role: 'admin'
-      };
-    }
-    // Verificar credenciais do Prefeito
-    else if (email === 'prefeito@sistrator.com' && password === 'pref123456') {
-      userData = {
-        email: email,
-        name: 'Prefeito Municipal',
-        role: 'prefeito'
-      };
-    }
-    // Verificar credenciais do Vereador
-    else if (email === 'vereador@sistrator.com' && password === 'ver123456') {
-      userData = {
-        email: email,
-        name: 'Vereador Municipal',
-        role: 'vereador'
-      };
-    }
-    // Verificar credenciais da Secretária
-    else if (email === 'secretaria@sistrator.com' && password === 'sec123456') {
-      userData = {
-        email: email,
-        name: 'Secretária da Agricultura',
-        role: 'secretaria'
-      };
-    }
-    // Verificar credenciais do Tratorista
-    else if (email === 'tratorista@sistrator.com' && password === 'trat123456') {
-      userData = {
-        email: email,
-        name: 'João Silva Santos',
-        role: 'tratorista'
-      };
-    }
-    
-    if (userData) {
-      setUser(userData);
-      localStorage.setItem('sistrator_user', JSON.stringify(userData));
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        console.error('Login error:', error);
+        setIsLoading(false);
+        return false;
+      }
+
+      if (data.user) {
+        console.log('Login successful:', data.user);
+        return true;
+      }
+      
       setIsLoading(false);
-      return true;
+      return false;
+    } catch (error) {
+      console.error('Login exception:', error);
+      setIsLoading(false);
+      return false;
     }
-    
-    setIsLoading(false);
-    return false;
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('sistrator_user');
+  const logout = async () => {
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+      setSession(null);
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   const value = {
     user,
+    session,
     login,
     logout,
-    isAuthenticated: !!user,
+    isAuthenticated: !!session,
     isLoading
   };
 

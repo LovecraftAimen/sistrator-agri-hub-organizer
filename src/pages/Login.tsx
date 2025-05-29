@@ -130,19 +130,19 @@ const Login = () => {
               <p>Credenciais de demonstração:</p>
               <div className="space-y-1 mt-2">
                 <p className="font-mono text-xs">
-                  secagri@sistrator.com | sis123456 (Admin)
+                  secagri@sistrator.com | senha: sistrator123
                 </p>
                 <p className="font-mono text-xs">
-                  prefeito@sistrator.com | pref123456 (Prefeito)
+                  prefeito@sistrator.com | senha: sistrator123
                 </p>
                 <p className="font-mono text-xs">
-                  vereador@sistrator.com | ver123456 (Vereador)
+                  vereador@sistrator.com | senha: sistrator123
                 </p>
                 <p className="font-mono text-xs">
-                  secretaria@sistrator.com | sec123456 (Secretária)
+                  secretaria@sistrator.com | senha: sistrator123
                 </p>
                 <p className="font-mono text-xs">
-                  tratorista@sistrator.com | trat123456 (Tratorista)
+                  tratorista@sistrator.com | senha: sistrator123
                 </p>
               </div>
             </div>
