@@ -9,15 +9,18 @@ import { SecuritySettings } from "@/components/SecuritySettings";
 import { LimitedSecuritySettings } from "@/components/LimitedSecuritySettings";
 import { BackupSettings } from "@/components/BackupSettings";
 import { useAuth } from "@/contexts/AuthContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { 
   Settings, 
   Users, 
   Shield, 
-  Database 
+  Database,
+  Menu
 } from "lucide-react";
 
 const Configuracoes = () => {
   const { user } = useAuth();
+  const isMobile = useIsMobile();
 
   // Para todos os usuários exceto admin, mostrar apenas configurações limitadas
   if (user?.role !== 'admin') {
@@ -27,19 +30,23 @@ const Configuracoes = () => {
           <AppSidebar />
           <main className="flex-1 overflow-hidden">
             <div className="border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-              <div className="flex h-16 items-center gap-4 px-6">
-                <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
+              <div className={`flex items-center gap-4 ${isMobile ? 'h-14 px-4' : 'h-16 px-6'}`}>
+                <SidebarTrigger className="text-muted-foreground hover:text-foreground">
+                  <Menu className={isMobile ? 'w-5 h-5' : 'w-6 h-6'} />
+                </SidebarTrigger>
                 <div className="flex-1">
-                  <h1 className="text-xl font-semibold text-foreground">
+                  <h1 className={`${isMobile ? 'text-base' : 'text-xl'} font-semibold text-foreground`}>
                     Configurações
                   </h1>
-                  <p className="text-sm text-muted-foreground">
-                    Configurações de conta e segurança
-                  </p>
+                  {!isMobile && (
+                    <p className="text-sm text-muted-foreground">
+                      Configurações de conta e segurança
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
-            <div className="flex-1 overflow-auto p-6">
+            <div className={`flex-1 overflow-auto ${isMobile ? 'p-3' : 'p-6'}`}>
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -65,35 +72,39 @@ const Configuracoes = () => {
         <AppSidebar />
         <main className="flex-1 overflow-hidden">
           <div className="border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="flex h-16 items-center gap-4 px-6">
-              <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
+            <div className={`flex items-center gap-4 ${isMobile ? 'h-14 px-4' : 'h-16 px-6'}`}>
+              <SidebarTrigger className="text-muted-foreground hover:text-foreground">
+                <Menu className={isMobile ? 'w-5 h-5' : 'w-6 h-6'} />
+              </SidebarTrigger>
               <div className="flex-1">
-                <h1 className="text-xl font-semibold text-foreground">
+                <h1 className={`${isMobile ? 'text-base' : 'text-xl'} font-semibold text-foreground`}>
                   Configurações
                 </h1>
-                <p className="text-sm text-muted-foreground">
-                  Configurações do sistema e administração
-                </p>
+                {!isMobile && (
+                  <p className="text-sm text-muted-foreground">
+                    Configurações do sistema e administração
+                  </p>
+                )}
               </div>
             </div>
           </div>
-          <div className="flex-1 overflow-auto p-6">
-            <Tabs defaultValue="system" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-4">
+          <div className={`flex-1 overflow-auto ${isMobile ? 'p-3' : 'p-6'}`}>
+            <Tabs defaultValue="system" className={`space-y-${isMobile ? '4' : '6'}`}>
+              <TabsList className={`grid w-full grid-cols-4 ${isMobile ? 'text-xs' : ''}`}>
                 <TabsTrigger value="system" className="flex items-center gap-2">
-                  <Settings className="w-4 h-4" />
-                  Sistema
+                  <Settings className={isMobile ? 'w-3 h-3' : 'w-4 h-4'} />
+                  {isMobile ? 'Sist.' : 'Sistema'}
                 </TabsTrigger>
                 <TabsTrigger value="users" className="flex items-center gap-2">
-                  <Users className="w-4 h-4" />
-                  Usuários
+                  <Users className={isMobile ? 'w-3 h-3' : 'w-4 h-4'} />
+                  {isMobile ? 'User' : 'Usuários'}
                 </TabsTrigger>
                 <TabsTrigger value="security" className="flex items-center gap-2">
-                  <Shield className="w-4 h-4" />
-                  Segurança
+                  <Shield className={isMobile ? 'w-3 h-3' : 'w-4 h-4'} />
+                  {isMobile ? 'Seg.' : 'Segurança'}
                 </TabsTrigger>
                 <TabsTrigger value="backup" className="flex items-center gap-2">
-                  <Database className="w-4 h-4" />
+                  <Database className={isMobile ? 'w-3 h-3' : 'w-4 h-4'} />
                   Backup
                 </TabsTrigger>
               </TabsList>
