@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,11 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
-import type { TratoristaData } from "@/hooks/useTratoristasData";
+import type { Tratorista } from "@/pages/Tratoristas";
 
 interface TratoristaFormProps {
-  tratorista?: TratoristaData | null;
-  onSubmit: (data: Omit<TratoristaData, 'id' | 'data_cadastro' | 'horas_trabalhadas'>) => void;
+  tratorista?: Tratorista | null;
+  onSubmit: (data: Omit<Tratorista, 'id' | 'dataCadastro' | 'horasTrabalhadas'>) => void;
   onCancel: () => void;
 }
 
@@ -21,14 +22,12 @@ export const TratoristaForm = ({ tratorista, onSubmit, onCancel }: TratoristaFor
     telefone: "",
     endereco: "",
     cnh: "",
-    validade_cnh: "",
+    validadeCnh: "",
     experiencia: "",
     especialidades: [] as string[],
     disponibilidade: "",
     observacoes: "",
-    status: "ativo" as 'ativo' | 'inativo' | 'licenca',
-    created_at: "",
-    updated_at: ""
+    status: "ativo" as 'ativo' | 'inativo' | 'licenca'
   });
 
   const [novaEspecialidade, setNovaEspecialidade] = useState("");
@@ -38,17 +37,15 @@ export const TratoristaForm = ({ tratorista, onSubmit, onCancel }: TratoristaFor
       setFormData({
         nome: tratorista.nome,
         cpf: tratorista.cpf,
-        telefone: tratorista.telefone || "",
-        endereco: tratorista.endereco || "",
+        telefone: tratorista.telefone,
+        endereco: tratorista.endereco,
         cnh: tratorista.cnh,
-        validade_cnh: tratorista.validade_cnh,
-        experiencia: tratorista.experiencia || "",
-        especialidades: tratorista.especialidades || [],
-        disponibilidade: tratorista.disponibilidade || "",
-        observacoes: tratorista.observacoes || "",
-        status: tratorista.status,
-        created_at: tratorista.created_at,
-        updated_at: tratorista.updated_at
+        validadeCnh: tratorista.validadeCnh,
+        experiencia: tratorista.experiencia,
+        especialidades: tratorista.especialidades,
+        disponibilidade: tratorista.disponibilidade,
+        observacoes: tratorista.observacoes,
+        status: tratorista.status
       });
     }
   }, [tratorista]);
@@ -161,12 +158,12 @@ export const TratoristaForm = ({ tratorista, onSubmit, onCancel }: TratoristaFor
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="validade_cnh">Validade da CNH *</Label>
+            <Label htmlFor="validadeCnh">Validade da CNH *</Label>
             <Input
-              id="validade_cnh"
+              id="validadeCnh"
               type="date"
-              value={formData.validade_cnh}
-              onChange={(e) => handleInputChange("validade_cnh", e.target.value)}
+              value={formData.validadeCnh}
+              onChange={(e) => handleInputChange("validadeCnh", e.target.value)}
               required
             />
           </div>

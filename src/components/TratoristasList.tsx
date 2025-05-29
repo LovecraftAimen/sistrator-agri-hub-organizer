@@ -3,12 +3,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Eye, Edit, Phone, MapPin, Calendar, Clock } from "lucide-react";
-import type { TratoristaData } from "@/hooks/useTratoristasData";
+import type { Tratorista } from "@/pages/Tratoristas";
 
 interface TratoristaListProps {
-  tratoristas: TratoristaData[];
-  onView: (tratorista: TratoristaData) => void;
-  onEdit: (tratorista: TratoristaData) => void;
+  tratoristas: Tratorista[];
+  onView: (tratorista: Tratorista) => void;
+  onEdit: (tratorista: Tratorista) => void;
 }
 
 export const TratoristasList = ({ tratoristas, onView, onEdit }: TratoristaListProps) => {
@@ -89,21 +89,21 @@ export const TratoristasList = ({ tratoristas, onView, onEdit }: TratoristaListP
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Clock className="w-4 h-4" />
-                {tratorista.horas_trabalhadas}h trabalhadas
+                {tratorista.horasTrabalhadas}h trabalhadas
               </div>
             </div>
 
             <div className="mb-4">
               <p className="text-sm font-medium mb-2">Especialidades:</p>
               <div className="flex flex-wrap gap-1">
-                {tratorista.especialidades?.slice(0, 3).map((especialidade, index) => (
+                {tratorista.especialidades.slice(0, 3).map((especialidade, index) => (
                   <Badge key={index} variant="outline" className="text-xs">
                     {especialidade}
                   </Badge>
                 ))}
-                {(tratorista.especialidades?.length || 0) > 3 && (
+                {tratorista.especialidades.length > 3 && (
                   <Badge variant="outline" className="text-xs">
-                    +{(tratorista.especialidades?.length || 0) - 3}
+                    +{tratorista.especialidades.length - 3}
                   </Badge>
                 )}
               </div>
@@ -116,7 +116,7 @@ export const TratoristasList = ({ tratoristas, onView, onEdit }: TratoristaListP
             </div>
 
             <div className="text-xs text-muted-foreground mb-4">
-              Cadastrado em: {formatDate(tratorista.data_cadastro)}
+              Cadastrado em: {formatDate(tratorista.dataCadastro)}
             </div>
 
             <div className="flex gap-2">

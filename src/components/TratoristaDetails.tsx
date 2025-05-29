@@ -1,11 +1,12 @@
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Edit, Phone, MapPin, Calendar, Clock, FileText, User } from "lucide-react";
-import type { TratoristaData } from "@/hooks/useTratoristasData";
+import type { Tratorista } from "@/pages/Tratoristas";
 
 interface TratoristaDetailsProps {
-  tratorista: TratoristaData;
+  tratorista: Tratorista;
   onEdit: () => void;
 }
 
@@ -42,7 +43,7 @@ export const TratoristaDetails = ({ tratorista, onEdit }: TratoristaDetailsProps
 
   const isValidadeCnhProxima = () => {
     const hoje = new Date();
-    const validadeCnh = new Date(tratorista.validade_cnh);
+    const validadeCnh = new Date(tratorista.validadeCnh);
     const diffTime = validadeCnh.getTime() - hoje.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays <= 90 && diffDays > 0;
@@ -50,7 +51,7 @@ export const TratoristaDetails = ({ tratorista, onEdit }: TratoristaDetailsProps
 
   const isCnhVencida = () => {
     const hoje = new Date();
-    const validadeCnh = new Date(tratorista.validade_cnh);
+    const validadeCnh = new Date(tratorista.validadeCnh);
     return validadeCnh < hoje;
   };
 
@@ -132,7 +133,7 @@ export const TratoristaDetails = ({ tratorista, onEdit }: TratoristaDetailsProps
             <div>
               <label className="text-sm font-medium text-muted-foreground">Validade da CNH</label>
               <p className={`text-lg ${isCnhVencida() ? 'text-red-600' : isValidadeCnhProxima() ? 'text-orange-600' : ''}`}>
-                {formatDate(tratorista.validade_cnh)}
+                {formatDate(tratorista.validadeCnh)}
                 {isCnhVencida() && ' (Vencida)'}
                 {isValidadeCnhProxima() && !isCnhVencida() && ' (Próxima ao vencimento)'}
               </p>
@@ -155,7 +156,7 @@ export const TratoristaDetails = ({ tratorista, onEdit }: TratoristaDetailsProps
             </div>
             <div>
               <label className="text-sm font-medium text-muted-foreground">Horas Trabalhadas</label>
-              <p className="text-lg font-semibold text-primary">{tratorista.horas_trabalhadas}h</p>
+              <p className="text-lg font-semibold text-primary">{tratorista.horasTrabalhadas}h</p>
             </div>
           </CardContent>
         </Card>
@@ -181,12 +182,12 @@ export const TratoristaDetails = ({ tratorista, onEdit }: TratoristaDetailsProps
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2">
-            {tratorista.especialidades?.map((especialidade, index) => (
+            {tratorista.especialidades.map((especialidade, index) => (
               <Badge key={index} variant="secondary" className="text-sm">
                 {especialidade}
               </Badge>
             ))}
-            {(!tratorista.especialidades || tratorista.especialidades.length === 0) && (
+            {tratorista.especialidades.length === 0 && (
               <p className="text-muted-foreground">Nenhuma especialidade cadastrada</p>
             )}
           </div>
@@ -214,7 +215,7 @@ export const TratoristaDetails = ({ tratorista, onEdit }: TratoristaDetailsProps
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            Cadastrado em: {formatDate(tratorista.data_cadastro)}
+            Cadastrado em: {formatDate(tratorista.dataCadastro)}
           </p>
         </CardContent>
       </Card>
