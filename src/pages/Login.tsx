@@ -56,6 +56,35 @@ const Login = () => {
     setPassword(userPassword);
   };
 
+  // Credenciais atualizadas com senhas específicas para cada função
+  const loginCredentials = [
+    { 
+      email: 'secagri@sistrator.com', 
+      password: 'Admin@2024!', 
+      label: 'Secretário Agricultura (Admin)' 
+    },
+    { 
+      email: 'prefeito@sistrator.com', 
+      password: 'Prefeito#2024', 
+      label: 'Prefeito Municipal' 
+    },
+    { 
+      email: 'vereador@sistrator.com', 
+      password: 'Vereador$2024', 
+      label: 'Vereador' 
+    },
+    { 
+      email: 'secretaria@sistrator.com', 
+      password: 'Secretaria&2024', 
+      label: 'Secretária' 
+    },
+    { 
+      email: 'tratorista@sistrator.com', 
+      password: 'Tratorista%2024', 
+      label: 'Tratorista' 
+    }
+  ];
+
   return (
     <div className={`min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50 dark:from-green-950 dark:to-blue-950 ${isMobile ? 'p-3' : 'p-4'}`}>
       <Card className={`w-full ${isMobile ? 'max-w-sm' : 'max-w-md'} shadow-xl`}>
@@ -133,51 +162,23 @@ const Login = () => {
           <div className="mt-6 text-center text-sm text-muted-foreground">
             <p className="mb-2">Credenciais de demonstração:</p>
             <div className="space-y-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full text-xs"
-                onClick={() => handleQuickLogin('secagri@sistrator.com', 'sistrator123')}
-                disabled={isLoading}
-              >
-                Secretário Agricultura (Admin)
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full text-xs"
-                onClick={() => handleQuickLogin('prefeito@sistrator.com', 'sistrator123')}
-                disabled={isLoading}
-              >
-                Prefeito Municipal
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full text-xs"
-                onClick={() => handleQuickLogin('vereador@sistrator.com', 'sistrator123')}
-                disabled={isLoading}
-              >
-                Vereador
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full text-xs"
-                onClick={() => handleQuickLogin('secretaria@sistrator.com', 'sistrator123')}
-                disabled={isLoading}
-              >
-                Secretária
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full text-xs"
-                onClick={() => handleQuickLogin('tratorista@sistrator.com', 'sistrator123')}
-                disabled={isLoading}
-              >
-                Tratorista
-              </Button>
+              {loginCredentials.map((credential, index) => (
+                <div key={index} className="bg-gray-50 p-2 rounded">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full text-xs mb-1"
+                    onClick={() => handleQuickLogin(credential.email, credential.password)}
+                    disabled={isLoading}
+                  >
+                    {credential.label}
+                  </Button>
+                  <div className="text-xs text-gray-600">
+                    <div>Email: {credential.email}</div>
+                    <div>Senha: {credential.password}</div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </CardContent>

@@ -35,31 +35,31 @@ serve(async (req) => {
     const users: CreateUserRequest[] = [
       {
         email: 'secagri@sistrator.com',
-        password: 'sistrator123',
+        password: 'Admin@2024!',
         name: 'Secretário de Agricultura',
         role: 'admin'
       },
       {
         email: 'prefeito@sistrator.com',
-        password: 'sistrator123',
+        password: 'Prefeito#2024',
         name: 'Prefeito Municipal',
         role: 'prefeito'
       },
       {
         email: 'vereador@sistrator.com',
-        password: 'sistrator123',
+        password: 'Vereador$2024',
         name: 'Vereador Municipal',
         role: 'vereador'
       },
       {
         email: 'secretaria@sistrator.com',
-        password: 'sistrator123',
+        password: 'Secretaria&2024',
         name: 'Secretária da Agricultura',
         role: 'secretaria'
       },
       {
         email: 'tratorista@sistrator.com',
-        password: 'sistrator123',
+        password: 'Tratorista%2024',
         name: 'João Silva Santos',
         role: 'tratorista',
         cpf: '123.456.789-00'
@@ -101,7 +101,13 @@ serve(async (req) => {
           console.error(`Error creating profile for ${userData.email}:`, profileError)
           results.push({ email: userData.email, success: false, error: profileError.message })
         } else {
-          results.push({ email: userData.email, success: true, userId: authData.user.id })
+          results.push({ 
+            email: userData.email, 
+            success: true, 
+            userId: authData.user.id,
+            password: userData.password,
+            role: userData.role
+          })
         }
 
       } catch (error) {

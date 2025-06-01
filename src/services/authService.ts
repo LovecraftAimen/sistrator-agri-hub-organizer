@@ -83,10 +83,10 @@ export const authService = {
   // Criar usuários de demonstração
   async createDemoUsers() {
     try {
-      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/create-demo-users`, {
+      const response = await fetch('https://vyzsgtigwezgglagvbou.supabase.co/functions/v1/create-demo-users', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${supabase.supabaseKey}`,
+          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5enNndGlnd2V6Z2dsYWd2Ym91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg1NTE3MjEsImV4cCI6MjA2NDEyNzcyMX0.6gNIiDVTaCMhw2dolXebUvZ-9146olJIaIGiPY-gVuE`,
           'Content-Type': 'application/json',
         },
       });
