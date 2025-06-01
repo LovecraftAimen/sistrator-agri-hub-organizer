@@ -21,6 +21,8 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Starting demo users creation...')
+    
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
@@ -31,6 +33,13 @@ serve(async (req) => {
         }
       }
     )
+
+    // Primeiro, verificar usuários existentes
+    const { data: existingProfiles } = await supabaseAdmin
+      .from('profiles')
+      .select('email, role')
+
+    console.log('Existing profiles:', existingProfiles)
 
     const users: CreateUserRequest[] = [
       {
@@ -70,6 +79,25 @@ serve(async (req) => {
 
     for (const userData of users) {
       try {
+        console.log(`Processing user: ${userData.email}`)
+        
+        // Verificar se usuário já existe
+        const { data: existingAuth } = await supabaseAdmin.auth.admin.listUsers()
+        const userExists = existingAuth.users.find(u => u.email === userData.email)
+        
+        if (userExists) {
+          console.log(`User ${userData.email} already exists, skipping...`)
+          results.push({ 
+            email: userData.email, 
+            success: true, 
+            message: 'User already exists',
+            password: userData.password,
+            role: userData.role
+          })
+          continue
+        }
+
+        // Criar usuário
         const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
           email: userData.email,
           password: userData.password,
@@ -87,7 +115,9 @@ serve(async (req) => {
           continue
         }
 
-        // Criar perfil do usuário
+        console.log(`User created successfully: ${userData.email}`)
+
+        // Criar ou atualizar perfil do usuário
         const { error: profileError } = await supabaseAdmin
           .from('profiles')
           .upsert({
@@ -95,18 +125,22 @@ serve(async (req) => {
             email: userData.email,
             name: userData.name,
             role: userData.role
+          }, {
+            onConflict: 'id'
           })
 
         if (profileError) {
           console.error(`Error creating profile for ${userData.email}:`, profileError)
           results.push({ email: userData.email, success: false, error: profileError.message })
         } else {
+          console.log(`Profile created successfully for: ${userData.email}`)
           results.push({ 
             email: userData.email, 
             success: true, 
             userId: authData.user.id,
             password: userData.password,
-            role: userData.role
+            role: userData.role,
+            message: 'User and profile created successfully'
           })
         }
 
@@ -116,8 +150,20 @@ serve(async (req) => {
       }
     }
 
+    // Verificar usuários finais
+    const { data: finalProfiles } = await supabaseAdmin
+      .from('profiles')
+      .select('email, role')
+
+    console.log('Final profiles in database:', finalProfiles)
+
     return new Response(
-      JSON.stringify({ success: true, results }),
+      JSON.stringify({ 
+        success: true, 
+        results,
+        totalUsers: finalProfiles?.length || 0,
+        finalProfiles
+      }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200 

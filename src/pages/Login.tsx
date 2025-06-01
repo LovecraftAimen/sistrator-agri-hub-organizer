@@ -9,12 +9,14 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Tractor, Eye, EyeOff } from 'lucide-react';
+import { authService } from '@/services/authService';
+import { Tractor, Eye, EyeOff, UserPlus } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isCreatingUsers, setIsCreatingUsers] = useState(false);
   const { login, isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -35,6 +37,7 @@ const Login = () => {
       return;
     }
 
+    console.log('Login attempt with:', email, 'Password length:', password.length);
     const success = await login(email, password);
     
     if (success) {
@@ -45,7 +48,7 @@ const Login = () => {
     } else {
       toast({
         title: "Erro no login",
-        description: "Email ou senha incorretos. Tente novamente.",
+        description: "Email ou senha incorretos. Verifique suas credenciais.",
         variant: "destructive"
       });
     }
@@ -56,7 +59,37 @@ const Login = () => {
     setPassword(userPassword);
   };
 
-  // Credenciais atualizadas com senhas específicas para cada função
+  const handleCreateDemoUsers = async () => {
+    setIsCreatingUsers(true);
+    try {
+      console.log('Creating demo users...');
+      const result = await authService.createDemoUsers();
+      console.log('Demo users result:', result);
+      
+      toast({
+        title: "Usuários criados",
+        description: "Usuários de demonstração criados com sucesso!",
+      });
+      
+      // Verificar usuários após criação
+      setTimeout(async () => {
+        const users = await authService.checkUsersExist();
+        console.log('Users verified:', users);
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Error creating demo users:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao criar usuários de demonstração.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsCreatingUsers(false);
+    }
+  };
+
+  // Credenciais específicas para cada função
   const loginCredentials = [
     { 
       email: 'secagri@sistrator.com', 
@@ -158,6 +191,27 @@ const Login = () => {
               )}
             </Button>
           </form>
+
+          <div className="mt-4">
+            <Button
+              onClick={handleCreateDemoUsers}
+              disabled={isCreatingUsers}
+              variant="outline"
+              className="w-full"
+            >
+              {isCreatingUsers ? (
+                <>
+                  <LoadingSpinner size="sm" className="mr-2" text="" />
+                  Criando usuários...
+                </>
+              ) : (
+                <>
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Criar Usuários Demo
+                </>
+              )}
+            </Button>
+          </div>
 
           <div className="mt-6 text-center text-sm text-muted-foreground">
             <p className="mb-2">Credenciais de demonstração:</p>

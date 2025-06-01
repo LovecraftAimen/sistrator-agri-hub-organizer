@@ -37,45 +37,64 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     let isMounted = true;
     
+    console.log('Setting up auth state listener...');
+    
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth event:', event, session);
+        console.log('Auth event:', event, session?.user?.email);
         
         if (!isMounted) return;
         
         setSession(session);
         
         if (session?.user) {
-          // Buscar perfil do usuário com timeout para evitar travamento
-          setTimeout(async () => {
-            if (!isMounted) return;
+          // Buscar perfil do usuário
+          try {
+            console.log('Fetching user profile for:', session.user.id);
             
-            try {
-              const { data: profile, error } = await supabase
+            const { data: profile, error } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .single();
+            
+            if (profile && isMounted) {
+              console.log('Profile loaded:', profile);
+              setUser({
+                id: profile.id,
+                email: profile.email,
+                name: profile.name,
+                role: profile.role
+              });
+            } else if (error) {
+              console.error('Error fetching user profile:', error);
+              // Se não encontrar o perfil, criar um básico
+              const { error: insertError } = await supabase
                 .from('profiles')
-                .select('*')
-                .eq('id', session.user.id)
-                .single();
-              
-              if (profile && isMounted) {
-                setUser({
-                  id: profile.id,
-                  email: profile.email,
-                  name: profile.name,
-                  role: profile.role
+                .insert({
+                  id: session.user.id,
+                  email: session.user.email || '',
+                  name: session.user.user_metadata?.name || 'Usuário',
+                  role: session.user.user_metadata?.role || 'admin'
                 });
-              } else if (error) {
-                console.error('Error fetching user profile:', error);
-              }
-            } catch (error) {
-              console.error('Exception fetching user profile:', error);
-            } finally {
-              if (isMounted) {
-                setIsLoading(false);
+              
+              if (!insertError && isMounted) {
+                setUser({
+                  id: session.user.id,
+                  email: session.user.email || '',
+                  name: session.user.user_metadata?.name || 'Usuário',
+                  role: session.user.user_metadata?.role || 'admin'
+                });
               }
             }
-          }, 100);
+          } catch (error) {
+            console.error('Exception fetching user profile:', error);
+          } finally {
+            if (isMounted) {
+              setIsLoading(false);
+            }
+          }
         } else {
           if (isMounted) {
             setUser(null);
@@ -88,8 +107,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (isMounted) {
-        console.log('Initial session:', session);
-        setSession(session);
+        console.log('Initial session check:', session?.user?.email);
         if (!session) {
           setIsLoading(false);
         }
@@ -106,19 +124,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     
     try {
+      console.log('Attempting login with:', email);
+      console.log('Password provided:', password ? 'Yes' : 'No');
+      
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: email.trim().toLowerCase(),
+        password: password,
       });
 
       if (error) {
-        console.error('Login error:', error);
+        console.error('Login error details:', {
+          message: error.message,
+          status: error.status,
+          code: error.name
+        });
         setIsLoading(false);
         return false;
       }
 
       if (data.user) {
-        console.log('Login successful:', data.user);
+        console.log('Login successful for user:', data.user.email);
         return true;
       }
       

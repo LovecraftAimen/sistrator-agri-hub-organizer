@@ -6,6 +6,7 @@ export const authService = {
   async signIn(email: string, password: string) {
     try {
       console.log('Attempting login for:', email);
+      console.log('Password length:', password.length);
       
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim().toLowerCase(),
@@ -14,6 +15,8 @@ export const authService = {
 
       if (error) {
         console.error('Login error:', error);
+        console.error('Error code:', error.status);
+        console.error('Error message:', error.message);
         throw new Error(error.message);
       }
 
@@ -80,9 +83,36 @@ export const authService = {
     }
   },
 
-  // Criar usuários de demonstração
+  // Verificar se usuários existem
+  async checkUsersExist() {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('email, role')
+        .order('email');
+
+      if (error) {
+        console.error('Error checking users:', error);
+        return [];
+      }
+
+      console.log('Existing users in database:', data);
+      return data;
+    } catch (error) {
+      console.error('Exception checking users:', error);
+      return [];
+    }
+  },
+
+  // Criar usuários de demonstração com retry
   async createDemoUsers() {
     try {
+      console.log('Starting demo users creation...');
+      
+      // Primeiro verificar se usuários já existem
+      const existingUsers = await this.checkUsersExist();
+      console.log('Existing users found:', existingUsers.length);
+
       const response = await fetch('https://vyzsgtigwezgglagvbou.supabase.co/functions/v1/create-demo-users', {
         method: 'POST',
         headers: {
@@ -91,12 +121,23 @@ export const authService = {
         },
       });
 
+      console.log('Response status:', response.status);
+      
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Response error:', errorText);
         throw new Error('Erro ao criar usuários de demonstração');
       }
 
       const result = await response.json();
       console.log('Demo users creation result:', result);
+      
+      // Verificar novamente após criação
+      setTimeout(async () => {
+        const newUsers = await this.checkUsersExist();
+        console.log('Users after creation:', newUsers);
+      }, 2000);
+      
       return result;
     } catch (error) {
       console.error('Create demo users error:', error);
