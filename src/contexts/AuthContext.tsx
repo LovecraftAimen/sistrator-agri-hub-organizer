@@ -35,52 +35,71 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+    
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth event:', event, session);
+        
+        if (!isMounted) return;
+        
         setSession(session);
         
         if (session?.user) {
-          // Fetch user profile
+          // Buscar perfil do usuário com timeout para evitar travamento
           setTimeout(async () => {
+            if (!isMounted) return;
+            
             try {
-              const { data: profile } = await supabase
+              const { data: profile, error } = await supabase
                 .from('profiles')
                 .select('*')
                 .eq('id', session.user.id)
                 .single();
               
-              if (profile) {
+              if (profile && isMounted) {
                 setUser({
                   id: profile.id,
                   email: profile.email,
                   name: profile.name,
                   role: profile.role
                 });
+              } else if (error) {
+                console.error('Error fetching user profile:', error);
               }
             } catch (error) {
-              console.error('Error fetching user profile:', error);
+              console.error('Exception fetching user profile:', error);
+            } finally {
+              if (isMounted) {
+                setIsLoading(false);
+              }
             }
-          }, 0);
+          }, 100);
         } else {
-          setUser(null);
+          if (isMounted) {
+            setUser(null);
+            setIsLoading(false);
+          }
         }
-        
-        setIsLoading(false);
       }
     );
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session:', session);
-      setSession(session);
-      if (!session) {
-        setIsLoading(false);
+      if (isMounted) {
+        console.log('Initial session:', session);
+        setSession(session);
+        if (!session) {
+          setIsLoading(false);
+        }
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {

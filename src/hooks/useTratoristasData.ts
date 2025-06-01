@@ -45,7 +45,7 @@ export const useTratoristasData = () => {
         return;
       }
 
-      setBeneficiarios(data || []);
+      setTratoristas(data || []);
     } catch (error) {
       console.error('Exception fetching tratoristas:', error);
     } finally {

@@ -51,6 +51,11 @@ const Login = () => {
     }
   };
 
+  const handleQuickLogin = (userEmail: string, userPassword: string) => {
+    setEmail(userEmail);
+    setPassword(userPassword);
+  };
+
   return (
     <div className={`min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50 dark:from-green-950 dark:to-blue-950 ${isMobile ? 'p-3' : 'p-4'}`}>
       <Card className={`w-full ${isMobile ? 'max-w-sm' : 'max-w-md'} shadow-xl`}>
@@ -125,28 +130,56 @@ const Login = () => {
             </Button>
           </form>
 
-          {!isMobile && (
-            <div className="mt-6 text-center text-sm text-muted-foreground">
-              <p>Credenciais de demonstração:</p>
-              <div className="space-y-1 mt-2">
-                <p className="font-mono text-xs">
-                  secagri@sistrator.com | senha: sistrator123
-                </p>
-                <p className="font-mono text-xs">
-                  prefeito@sistrator.com | senha: sistrator123
-                </p>
-                <p className="font-mono text-xs">
-                  vereador@sistrator.com | senha: sistrator123
-                </p>
-                <p className="font-mono text-xs">
-                  secretaria@sistrator.com | senha: sistrator123
-                </p>
-                <p className="font-mono text-xs">
-                  tratorista@sistrator.com | senha: sistrator123
-                </p>
-              </div>
+          <div className="mt-6 text-center text-sm text-muted-foreground">
+            <p className="mb-2">Credenciais de demonstração:</p>
+            <div className="space-y-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full text-xs"
+                onClick={() => handleQuickLogin('secagri@sistrator.com', 'sistrator123')}
+                disabled={isLoading}
+              >
+                Secretário Agricultura (Admin)
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full text-xs"
+                onClick={() => handleQuickLogin('prefeito@sistrator.com', 'sistrator123')}
+                disabled={isLoading}
+              >
+                Prefeito Municipal
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full text-xs"
+                onClick={() => handleQuickLogin('vereador@sistrator.com', 'sistrator123')}
+                disabled={isLoading}
+              >
+                Vereador
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full text-xs"
+                onClick={() => handleQuickLogin('secretaria@sistrator.com', 'sistrator123')}
+                disabled={isLoading}
+              >
+                Secretária
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full text-xs"
+                onClick={() => handleQuickLogin('tratorista@sistrator.com', 'sistrator123')}
+                disabled={isLoading}
+              >
+                Tratorista
+              </Button>
             </div>
-          )}
+          </div>
         </CardContent>
       </Card>
     </div>

@@ -3,12 +3,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Eye, Edit, Phone, MapPin, Calendar, Clock } from "lucide-react";
-import type { Tratorista } from "@/pages/Tratoristas";
+import { TratoristaData } from "@/hooks/useTratoristasData";
 
 interface TratoristaListProps {
-  tratoristas: Tratorista[];
-  onView: (tratorista: Tratorista) => void;
-  onEdit: (tratorista: Tratorista) => void;
+  tratoristas: TratoristaData[];
+  onView: (tratorista: TratoristaData) => void;
+  onEdit: (tratorista: TratoristaData) => void;
 }
 
 export const TratoristasList = ({ tratoristas, onView, onEdit }: TratoristaListProps) => {
@@ -75,48 +75,58 @@ export const TratoristasList = ({ tratoristas, onView, onEdit }: TratoristaListP
             </div>
 
             <div className="space-y-2 mb-4">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Phone className="w-4 h-4" />
-                {tratorista.telefone}
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <MapPin className="w-4 h-4" />
-                {tratorista.endereco}
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Calendar className="w-4 h-4" />
-                Experiência: {tratorista.experiencia}
-              </div>
+              {tratorista.telefone && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Phone className="w-4 h-4" />
+                  {tratorista.telefone}
+                </div>
+              )}
+              {tratorista.endereco && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <MapPin className="w-4 h-4" />
+                  {tratorista.endereco}
+                </div>
+              )}
+              {tratorista.experiencia && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Calendar className="w-4 h-4" />
+                  Experiência: {tratorista.experiencia}
+                </div>
+              )}
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Clock className="w-4 h-4" />
-                {tratorista.horasTrabalhadas}h trabalhadas
+                {tratorista.horas_trabalhadas}h trabalhadas
               </div>
             </div>
 
-            <div className="mb-4">
-              <p className="text-sm font-medium mb-2">Especialidades:</p>
-              <div className="flex flex-wrap gap-1">
-                {tratorista.especialidades.slice(0, 3).map((especialidade, index) => (
-                  <Badge key={index} variant="outline" className="text-xs">
-                    {especialidade}
-                  </Badge>
-                ))}
-                {tratorista.especialidades.length > 3 && (
-                  <Badge variant="outline" className="text-xs">
-                    +{tratorista.especialidades.length - 3}
-                  </Badge>
-                )}
+            {tratorista.especialidades && tratorista.especialidades.length > 0 && (
+              <div className="mb-4">
+                <p className="text-sm font-medium mb-2">Especialidades:</p>
+                <div className="flex flex-wrap gap-1">
+                  {tratorista.especialidades.slice(0, 3).map((especialidade, index) => (
+                    <Badge key={index} variant="outline" className="text-xs">
+                      {especialidade}
+                    </Badge>
+                  ))}
+                  {tratorista.especialidades.length > 3 && (
+                    <Badge variant="outline" className="text-xs">
+                      +{tratorista.especialidades.length - 3}
+                    </Badge>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
-            <div className="mb-4">
-              <p className="text-sm text-muted-foreground">
-                <strong>Disponibilidade:</strong> {tratorista.disponibilidade}
-              </p>
-            </div>
+            {tratorista.disponibilidade && (
+              <div className="mb-4">
+                <p className="text-sm text-muted-foreground">
+                  <strong>Disponibilidade:</strong> {tratorista.disponibilidade}
+                </p>
+              </div>
+            )}
 
             <div className="text-xs text-muted-foreground mb-4">
-              Cadastrado em: {formatDate(tratorista.dataCadastro)}
+              Cadastrado em: {formatDate(tratorista.data_cadastro)}
             </div>
 
             <div className="flex gap-2">

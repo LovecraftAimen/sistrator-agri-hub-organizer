@@ -28,11 +28,13 @@ const Tratoristas = () => {
     }
   };
 
-  const handleEditTratorista = async (updatedTratorista: TratoristaData) => {
-    const success = await updateTratorista(updatedTratorista.id, updatedTratorista);
-    if (success) {
-      setShowForm(false);
-      setSelectedTratorista(null);
+  const handleEditTratorista = async (updatedTratorista: Omit<TratoristaData, 'id' | 'created_at' | 'updated_at'>) => {
+    if (selectedTratorista) {
+      const success = await updateTratorista(selectedTratorista.id, updatedTratorista);
+      if (success) {
+        setShowForm(false);
+        setSelectedTratorista(null);
+      }
     }
   };
 
@@ -49,7 +51,7 @@ const Tratoristas = () => {
   const filteredTratoristas = tratoristas.filter(tratorista =>
     tratorista.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
     tratorista.cpf.includes(searchTerm) ||
-    tratorista.telefone?.includes(searchTerm)
+    (tratorista.telefone && tratorista.telefone.includes(searchTerm))
   );
 
   if (isLoading) {
