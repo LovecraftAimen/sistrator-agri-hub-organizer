@@ -1,17 +1,17 @@
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Eye, Edit, Phone, MapPin, Calendar, Clock } from "lucide-react";
+import { Eye, Edit, Phone, MapPin, Calendar, Clock, Trash2 } from "lucide-react";
 import type { Tratorista } from "@/pages/Tratoristas";
 
 interface TratoristaListProps {
   tratoristas: Tratorista[];
   onView: (tratorista: Tratorista) => void;
   onEdit: (tratorista: Tratorista) => void;
+  onDelete: (tratorista: Tratorista) => void;
 }
 
-export const TratoristasList = ({ tratoristas, onView, onEdit }: TratoristaListProps) => {
+export const TratoristasList = ({ tratoristas, onView, onEdit, onDelete }: TratoristaListProps) => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'ativo':
@@ -137,6 +137,14 @@ export const TratoristasList = ({ tratoristas, onView, onEdit }: TratoristaListP
               >
                 <Edit className="w-4 h-4 mr-1" />
                 Editar
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                onClick={() => onDelete(tratorista)}
+              >
+                <Trash2 className="w-4 h-4" />
               </Button>
             </div>
           </CardContent>

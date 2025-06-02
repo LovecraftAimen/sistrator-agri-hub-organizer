@@ -7,7 +7,9 @@ import { Plus, Search, Edit, Eye, Menu } from "lucide-react";
 import { TratoristaForm } from "@/components/TratoristaForm";
 import { TratoristasList } from "@/components/TratoristasList";
 import { TratoristaDetails } from "@/components/TratoristaDetails";
+import { DeleteTratoristaDialog } from "@/components/DeleteTratoristaDialog";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useToast } from "@/hooks/use-toast";
 
 export interface Tratorista {
   id: string;
@@ -29,9 +31,12 @@ export interface Tratorista {
 const Tratoristas = () => {
   const [showForm, setShowForm] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedTratorista, setSelectedTratorista] = useState<Tratorista | null>(null);
+  const [tratoristaToDelete, setTratoristaToDelete] = useState<Tratorista | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const isMobile = useIsMobile();
+  const { toast } = useToast();
 
   const [tratoristas, setTratoristas] = useState<Tratorista[]>([
     {
@@ -85,6 +90,22 @@ const Tratoristas = () => {
     ));
     setShowForm(false);
     setSelectedTratorista(null);
+  };
+
+  const handleDeleteClick = (tratorista: Tratorista) => {
+    setTratoristaToDelete(tratorista);
+    setShowDeleteDialog(true);
+  };
+
+  const handleConfirmDelete = (id: string) => {
+    setTratoristas(tratoristas.filter(t => t.id !== id));
+    setShowDeleteDialog(false);
+    setTratoristaToDelete(null);
+    
+    toast({
+      title: "Tratorista excluído",
+      description: "O tratorista foi removido do sistema com sucesso.",
+    });
   };
 
   const handleViewDetails = (tratorista: Tratorista) => {
@@ -244,11 +265,19 @@ const Tratoristas = () => {
                 tratoristas={filteredTratoristas}
                 onView={handleViewDetails}
                 onEdit={handleEditClick}
+                onDelete={handleDeleteClick}
               />
             </div>
           </div>
         </main>
       </div>
+
+      <DeleteTratoristaDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        tratorista={tratoristaToDelete}
+        onConfirmDelete={handleConfirmDelete}
+      />
     </SidebarProvider>
   );
 };
