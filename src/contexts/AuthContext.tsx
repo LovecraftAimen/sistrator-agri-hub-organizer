@@ -1,18 +1,14 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
 
-interface UserProfile {
-  id: string;
+interface User {
   email: string;
   name: string;
-  role: 'admin' | 'prefeito' | 'vereador' | 'secretaria' | 'tratorista';
+  role: string;
 }
 
 interface AuthContextType {
-  user: UserProfile | null;
-  session: Session | null;
+  user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
@@ -30,126 +26,93 @@ export const useAuth = () => {
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<UserProfile | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    let isMounted = true;
-    
-    console.log('Setting up auth state listener...');
-    
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth event:', event, session?.user?.email);
-        
-        if (!isMounted) return;
-        
-        setSession(session);
-        
-        if (session?.user) {
-          try {
-            console.log('Fetching user profile for:', session.user.id);
-            
-            const { data: profile, error } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', session.user.id)
-              .maybeSingle();
-            
-            if (profile && isMounted) {
-              console.log('Profile loaded:', profile);
-              setUser({
-                id: profile.id,
-                email: profile.email,
-                name: profile.name,
-                role: profile.role
-              });
-            } else if (error && error.code !== 'PGRST116') {
-              console.error('Error fetching user profile:', error);
-            }
-          } catch (error) {
-            console.error('Exception fetching user profile:', error);
-          } finally {
-            if (isMounted) {
-              setIsLoading(false);
-            }
-          }
-        } else {
-          if (isMounted) {
-            setUser(null);
-            setIsLoading(false);
-          }
-        }
+    // Verificar se existe usuário logado no localStorage
+    const savedUser = localStorage.getItem('sistrator_user');
+    if (savedUser) {
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (error) {
+        console.error('Error parsing saved user:', error);
+        localStorage.removeItem('sistrator_user');
       }
-    );
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (isMounted) {
-        console.log('Initial session check:', session?.user?.email);
-        if (!session) {
-          setIsLoading(false);
-        }
-      }
-    });
-
-    return () => {
-      isMounted = false;
-      subscription.unsubscribe();
-    };
+    }
+    setIsLoading(false);
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     
-    try {
-      console.log('Attempting login with:', email);
-      
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim().toLowerCase(),
-        password: password,
-      });
-
-      if (error) {
-        console.error('Login error details:', {
-          message: error.message,
-          status: error.status,
-          code: error.name
-        });
-        setIsLoading(false);
-        return false;
-      }
-
-      if (data.user) {
-        console.log('Login successful for user:', data.user.email);
-        return true;
-      }
-      
-      setIsLoading(false);
-      return false;
-    } catch (error) {
-      console.error('Login exception:', error);
-      setIsLoading(false);
-      return false;
+    // Simular delay de autenticação
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    let userData: User | null = null;
+    
+    // Verificar credenciais do Admin (Secretário)
+    if (email === 'secagri@sistrator.com' && password === 'sis123456') {
+      userData = {
+        email: email,
+        name: 'Secretário de Agricultura',
+        role: 'admin'
+      };
     }
+    // Verificar credenciais do Prefeito
+    else if (email === 'prefeito@sistrator.com' && password === 'pref123456') {
+      userData = {
+        email: email,
+        name: 'Prefeito Municipal',
+        role: 'prefeito'
+      };
+    }
+    // Verificar credenciais do Vereador
+    else if (email === 'vereador@sistrator.com' && password === 'ver123456') {
+      userData = {
+        email: email,
+        name: 'Vereador Municipal',
+        role: 'vereador'
+      };
+    }
+    // Verificar credenciais da Secretária
+    else if (email === 'secretaria@sistrator.com' && password === 'sec123456') {
+      userData = {
+        email: email,
+        name: 'Secretária da Agricultura',
+        role: 'secretaria'
+      };
+    }
+    // Verificar credenciais do Tratorista
+    else if (email === 'tratorista@sistrator.com' && password === 'trat123456') {
+      userData = {
+        email: email,
+        name: 'João Silva Santos',
+        role: 'tratorista'
+      };
+    }
+    
+    if (userData) {
+      setUser(userData);
+      localStorage.setItem('sistrator_user', JSON.stringify(userData));
+      setIsLoading(false);
+      return true;
+    }
+    
+    setIsLoading(false);
+    return false;
   };
 
-  const logout = async () => {
-    try {
-      await supabase.auth.signOut();
-      setUser(null);
-      setSession(null);
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem('sistrator_user');
   };
 
   const value = {
     user,
-    session,
     login,
     logout,
-    isAuthenticated: !!session,
+    isAuthenticated: !!user,
     isLoading
   };
 

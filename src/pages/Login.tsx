@@ -9,14 +9,12 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { authService } from '@/services/authService';
-import { Tractor, Eye, EyeOff, UserPlus } from 'lucide-react';
+import { Tractor, Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isCreatingUsers, setIsCreatingUsers] = useState(false);
   const { login, isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -37,7 +35,6 @@ const Login = () => {
       return;
     }
 
-    console.log('Login attempt with:', email, 'Password length:', password.length);
     const success = await login(email, password);
     
     if (success) {
@@ -48,75 +45,11 @@ const Login = () => {
     } else {
       toast({
         title: "Erro no login",
-        description: "Email ou senha incorretos. Verifique suas credenciais.",
+        description: "Email ou senha incorretos. Tente novamente.",
         variant: "destructive"
       });
     }
   };
-
-  const handleQuickLogin = (userEmail: string, userPassword: string) => {
-    setEmail(userEmail);
-    setPassword(userPassword);
-  };
-
-  const handleCreateDemoUsers = async () => {
-    setIsCreatingUsers(true);
-    try {
-      console.log('Creating demo users...');
-      const result = await authService.createDemoUsers();
-      console.log('Demo users result:', result);
-      
-      toast({
-        title: "Usuários criados",
-        description: "Usuários de demonstração criados com sucesso!",
-      });
-      
-      // Verificar usuários após criação
-      setTimeout(async () => {
-        const users = await authService.checkUsersExist();
-        console.log('Users verified:', users);
-      }, 1000);
-      
-    } catch (error) {
-      console.error('Error creating demo users:', error);
-      toast({
-        title: "Erro",
-        description: "Erro ao criar usuários de demonstração.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsCreatingUsers(false);
-    }
-  };
-
-  // Credenciais específicas para cada função
-  const loginCredentials = [
-    { 
-      email: 'secagri@sistrator.com', 
-      password: 'Admin@2024!', 
-      label: 'Secretário Agricultura (Admin)' 
-    },
-    { 
-      email: 'prefeito@sistrator.com', 
-      password: 'Prefeito#2024', 
-      label: 'Prefeito Municipal' 
-    },
-    { 
-      email: 'vereador@sistrator.com', 
-      password: 'Vereador$2024', 
-      label: 'Vereador' 
-    },
-    { 
-      email: 'secretaria@sistrator.com', 
-      password: 'Secretaria&2024', 
-      label: 'Secretária' 
-    },
-    { 
-      email: 'tratorista@sistrator.com', 
-      password: 'Tratorista%2024', 
-      label: 'Tratorista' 
-    }
-  ];
 
   return (
     <div className={`min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50 dark:from-green-950 dark:to-blue-950 ${isMobile ? 'p-3' : 'p-4'}`}>
@@ -192,49 +125,28 @@ const Login = () => {
             </Button>
           </form>
 
-          <div className="mt-4">
-            <Button
-              onClick={handleCreateDemoUsers}
-              disabled={isCreatingUsers}
-              variant="outline"
-              className="w-full"
-            >
-              {isCreatingUsers ? (
-                <>
-                  <LoadingSpinner size="sm" className="mr-2" text="" />
-                  Criando usuários...
-                </>
-              ) : (
-                <>
-                  <UserPlus className="w-4 h-4 mr-2" />
-                  Criar Usuários Demo
-                </>
-              )}
-            </Button>
-          </div>
-
-          <div className="mt-6 text-center text-sm text-muted-foreground">
-            <p className="mb-2">Credenciais de demonstração:</p>
-            <div className="space-y-2">
-              {loginCredentials.map((credential, index) => (
-                <div key={index} className="bg-gray-50 p-2 rounded">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full text-xs mb-1"
-                    onClick={() => handleQuickLogin(credential.email, credential.password)}
-                    disabled={isLoading}
-                  >
-                    {credential.label}
-                  </Button>
-                  <div className="text-xs text-gray-600">
-                    <div>Email: {credential.email}</div>
-                    <div>Senha: {credential.password}</div>
-                  </div>
-                </div>
-              ))}
+          {!isMobile && (
+            <div className="mt-6 text-center text-sm text-muted-foreground">
+              <p>Credenciais de demonstração:</p>
+              <div className="space-y-1 mt-2">
+                <p className="font-mono text-xs">
+                  secagri@sistrator.com | sis123456 (Admin)
+                </p>
+                <p className="font-mono text-xs">
+                  prefeito@sistrator.com | pref123456 (Prefeito)
+                </p>
+                <p className="font-mono text-xs">
+                  vereador@sistrator.com | ver123456 (Vereador)
+                </p>
+                <p className="font-mono text-xs">
+                  secretaria@sistrator.com | sec123456 (Secretária)
+                </p>
+                <p className="font-mono text-xs">
+                  tratorista@sistrator.com | trat123456 (Tratorista)
+                </p>
+              </div>
             </div>
-          </div>
+          )}
         </CardContent>
       </Card>
     </div>

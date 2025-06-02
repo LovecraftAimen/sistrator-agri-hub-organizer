@@ -1,49 +1,98 @@
-
 import { useState } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, Menu } from "lucide-react";
+import { Plus, Search, Edit, Eye, Menu } from "lucide-react";
 import { TratoristaForm } from "@/components/TratoristaForm";
 import { TratoristasList } from "@/components/TratoristasList";
 import { TratoristaDetails } from "@/components/TratoristaDetails";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useTratoristasData, TratoristaData } from "@/hooks/useTratoristasData";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
+
+export interface Tratorista {
+  id: string;
+  nome: string;
+  cpf: string;
+  telefone: string;
+  endereco: string;
+  cnh: string;
+  validadeCnh: string;
+  experiencia: string;
+  especialidades: string[];
+  disponibilidade: string;
+  observacoes: string;
+  status: 'ativo' | 'inativo' | 'licenca';
+  dataCadastro: string;
+  horasTrabalhadas: number;
+}
 
 const Tratoristas = () => {
   const [showForm, setShowForm] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
-  const [selectedTratorista, setSelectedTratorista] = useState<TratoristaData | null>(null);
+  const [selectedTratorista, setSelectedTratorista] = useState<Tratorista | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const isMobile = useIsMobile();
-  
-  const { tratoristas, isLoading, addTratorista, updateTratorista } = useTratoristasData();
 
-  const handleAddTratorista = async (newTratorista: Omit<TratoristaData, 'id' | 'created_at' | 'updated_at'>) => {
-    const result = await addTratorista(newTratorista);
-    if (result) {
-      setShowForm(false);
+  const [tratoristas, setTratoristas] = useState<Tratorista[]>([
+    {
+      id: "1",
+      nome: "João Silva Santos",
+      cpf: "123.456.789-00",
+      telefone: "(11) 99999-9999",
+      endereco: "Rua das Flores, 123 - Centro",
+      cnh: "12345678901",
+      validadeCnh: "2025-12-15",
+      experiencia: "5 anos",
+      especialidades: ["Aração", "Gradagem", "Plantio"],
+      disponibilidade: "Segunda a Sexta - 7h às 17h",
+      observacoes: "Operador experiente, especialista em terrenos irregulares",
+      status: "ativo",
+      dataCadastro: "2024-01-15",
+      horasTrabalhadas: 245
+    },
+    {
+      id: "2",
+      nome: "Maria Oliveira Costa",
+      cpf: "987.654.321-00",
+      telefone: "(11) 88888-8888",
+      endereco: "Av. Principal, 456 - Vila Nova",
+      cnh: "98765432109",
+      validadeCnh: "2024-08-20",
+      experiencia: "3 anos",
+      especialidades: ["Gradagem", "Cultivo"],
+      disponibilidade: "Segunda a Sábado - 6h às 16h",
+      observacoes: "Ótima performance em terrenos pequenos e médios",
+      status: "ativo",
+      dataCadastro: "2024-02-10",
+      horasTrabalhadas: 189
     }
+  ]);
+
+  const handleAddTratorista = (newTratorista: Omit<Tratorista, 'id' | 'dataCadastro' | 'horasTrabalhadas'>) => {
+    const tratorista: Tratorista = {
+      ...newTratorista,
+      id: Date.now().toString(),
+      dataCadastro: new Date().toISOString().split('T')[0],
+      horasTrabalhadas: 0
+    };
+    setTratoristas([...tratoristas, tratorista]);
+    setShowForm(false);
   };
 
-  const handleEditTratorista = async (updatedTratorista: Omit<TratoristaData, 'id' | 'created_at' | 'updated_at'>) => {
-    if (selectedTratorista) {
-      const success = await updateTratorista(selectedTratorista.id, updatedTratorista);
-      if (success) {
-        setShowForm(false);
-        setSelectedTratorista(null);
-      }
-    }
+  const handleEditTratorista = (updatedTratorista: Tratorista) => {
+    setTratoristas(tratoristas.map(t => 
+      t.id === updatedTratorista.id ? updatedTratorista : t
+    ));
+    setShowForm(false);
+    setSelectedTratorista(null);
   };
 
-  const handleViewDetails = (tratorista: TratoristaData) => {
+  const handleViewDetails = (tratorista: Tratorista) => {
     setSelectedTratorista(tratorista);
     setShowDetails(true);
   };
 
-  const handleEditClick = (tratorista: TratoristaData) => {
+  const handleEditClick = (tratorista: Tratorista) => {
     setSelectedTratorista(tratorista);
     setShowForm(true);
   };
@@ -51,21 +100,8 @@ const Tratoristas = () => {
   const filteredTratoristas = tratoristas.filter(tratorista =>
     tratorista.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
     tratorista.cpf.includes(searchTerm) ||
-    (tratorista.telefone && tratorista.telefone.includes(searchTerm))
+    tratorista.telefone.includes(searchTerm)
   );
-
-  if (isLoading) {
-    return (
-      <SidebarProvider>
-        <div className="min-h-screen flex w-full bg-background">
-          <AppSidebar />
-          <main className="flex-1 flex items-center justify-center">
-            <LoadingSpinner size="lg" text="Carregando tratoristas..." />
-          </main>
-        </div>
-      </SidebarProvider>
-    );
-  }
 
   if (showForm) {
     return (
