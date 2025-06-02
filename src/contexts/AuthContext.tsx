@@ -39,7 +39,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     console.log('Setting up auth state listener...');
     
-    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth event:', event, session?.user?.email);
@@ -49,7 +48,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSession(session);
         
         if (session?.user) {
-          // Buscar perfil do usuário
           try {
             console.log('Fetching user profile for:', session.user.id);
             
@@ -57,7 +55,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               .from('profiles')
               .select('*')
               .eq('id', session.user.id)
-              .single();
+              .maybeSingle();
             
             if (profile && isMounted) {
               console.log('Profile loaded:', profile);
@@ -67,26 +65,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 name: profile.name,
                 role: profile.role
               });
-            } else if (error) {
+            } else if (error && error.code !== 'PGRST116') {
               console.error('Error fetching user profile:', error);
-              // Se não encontrar o perfil, criar um básico
-              const { error: insertError } = await supabase
-                .from('profiles')
-                .insert({
-                  id: session.user.id,
-                  email: session.user.email || '',
-                  name: session.user.user_metadata?.name || 'Usuário',
-                  role: session.user.user_metadata?.role || 'admin'
-                });
-              
-              if (!insertError && isMounted) {
-                setUser({
-                  id: session.user.id,
-                  email: session.user.email || '',
-                  name: session.user.user_metadata?.name || 'Usuário',
-                  role: session.user.user_metadata?.role || 'admin'
-                });
-              }
             }
           } catch (error) {
             console.error('Exception fetching user profile:', error);
@@ -104,7 +84,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     );
 
-    // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (isMounted) {
         console.log('Initial session check:', session?.user?.email);
@@ -125,7 +104,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     try {
       console.log('Attempting login with:', email);
-      console.log('Password provided:', password ? 'Yes' : 'No');
       
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim().toLowerCase(),
