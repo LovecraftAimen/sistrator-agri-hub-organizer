@@ -1,5 +1,5 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { authenticateUser, initializeUsers } from '@/lib/auth';
 
 interface User {
   email: string;
@@ -30,7 +30,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Verificar se existe usuário logado no localStorage
+    // Initialize default users
+    initializeUsers().catch(console.error);
+    
+    // Check for saved user session
     const savedUser = localStorage.getItem('sistrator_user');
     if (savedUser) {
       try {
@@ -46,61 +49,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     
-    // Simular delay de autenticação
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    let userData: User | null = null;
-    
-    // Verificar credenciais do Admin (Secretário)
-    if (email === 'secagri@sistrator.com' && password === 'sis123456') {
-      userData = {
-        email: email,
-        name: 'Secretário de Agricultura',
-        role: 'admin'
-      };
-    }
-    // Verificar credenciais do Prefeito
-    else if (email === 'prefeito@sistrator.com' && password === 'pref123456') {
-      userData = {
-        email: email,
-        name: 'Prefeito Municipal',
-        role: 'prefeito'
-      };
-    }
-    // Verificar credenciais do Vereador
-    else if (email === 'vereador@sistrator.com' && password === 'ver123456') {
-      userData = {
-        email: email,
-        name: 'Vereador Municipal',
-        role: 'vereador'
-      };
-    }
-    // Verificar credenciais da Secretária
-    else if (email === 'secretaria@sistrator.com' && password === 'sec123456') {
-      userData = {
-        email: email,
-        name: 'Secretária da Agricultura',
-        role: 'secretaria'
-      };
-    }
-    // Verificar credenciais do Tratorista
-    else if (email === 'tratorista@sistrator.com' && password === 'trat123456') {
-      userData = {
-        email: email,
-        name: 'João Silva Santos',
-        role: 'tratorista'
-      };
-    }
-    
-    if (userData) {
-      setUser(userData);
-      localStorage.setItem('sistrator_user', JSON.stringify(userData));
+    try {
+      const userData = await authenticateUser(email, password);
+      
+      if (userData) {
+        setUser(userData);
+        localStorage.setItem('sistrator_user', JSON.stringify(userData));
+        return true;
+      }
+      
+      return false;
+    } catch (error) {
+      console.error('Login error:', error);
+      return false;
+    } finally {
       setIsLoading(false);
-      return true;
     }
-    
-    setIsLoading(false);
-    return false;
   };
 
   const logout = () => {
